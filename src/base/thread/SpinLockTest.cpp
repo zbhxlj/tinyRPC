@@ -11,7 +11,6 @@ namespace tinyRPC{
     TEST(SpinLock, All){
         SpinLock spinLock;
 
-        std::uint64_t counter = 0;
         constexpr std::uint64_t threadCounter = 10000;
         constexpr std::uint64_t totalCounter = 100000;
 
