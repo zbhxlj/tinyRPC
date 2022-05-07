@@ -1,7 +1,3 @@
-enable_testing()
-
-# set(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/unittest)
-
 add_executable(glog_test glog_test.cpp)
 target_include_directories(glog_test PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(glog_test

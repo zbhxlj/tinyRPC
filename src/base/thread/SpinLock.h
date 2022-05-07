@@ -5,6 +5,8 @@
 
 namespace tinyRPC{
 
+// Simple spinlock implementation.
+
 class SpinLock{
 public:
     SpinLock() = default;
