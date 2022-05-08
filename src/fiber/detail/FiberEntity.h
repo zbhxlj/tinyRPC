@@ -75,6 +75,8 @@ public:
 
     extern "C" void jump_context(void** self, void* to, void* context);
 
+    extern "C" void* make_context(void* sp, std::size_t size, void (*start_proc)(void*));
+
     template <class F>
     void DestructiveRunCallback(F* cb) {
         (*cb)();
