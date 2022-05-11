@@ -1,6 +1,7 @@
 #include <memory>
-#include "glog/logging.h"
-#include "gflags/gflags.h"
+
+#include "../../include/glog/logging.h"
+#include "../../include/gflags/gflags.h"
 
 #include "FiberEntity.h"
 

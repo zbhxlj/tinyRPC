@@ -2,10 +2,9 @@
 // Created by zbh on 5/3/22.
 //
 
-#include "glog/logging.h"
-#include "glog/raw_logging.h"
-
-#include "gtest/gtest.h"
+#include "../../include/glog/logging.h"
+#include "../../include/glog/raw_logging.h"
+#include "../../include/gtest/gtest.h"
 
 TEST(GLog, Test) {
     VLOG(1) << "VLOG(1)";

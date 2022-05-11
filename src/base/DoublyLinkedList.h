@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <utility>
 
-#include "glog/logging.h"
+#include "../../include/glog/logging.h"
 
 // Copy from flare.
 namespace tinyRPC {

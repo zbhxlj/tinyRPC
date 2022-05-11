@@ -1,4 +1,4 @@
-#include "gtest/gtest.h"
+#include "../../include/gtest/gtest.h"
 #include "DoublyLinkedList.h"
 
 
