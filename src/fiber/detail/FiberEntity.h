@@ -56,6 +56,7 @@ public:
 
     std::function<void()> startProc_;
 };
+    void SetUpMasterFiberEntity() noexcept;
 
     thread_local FiberEntity* masterFiber;
 
