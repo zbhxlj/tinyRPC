@@ -58,21 +58,21 @@ public:
 };
     void SetUpMasterFiberEntity() noexcept;
 
-    thread_local FiberEntity* masterFiber;
+    inline thread_local FiberEntity* masterFiber;
 
-    thread_local FiberEntity* currentFiber; 
+    inline thread_local FiberEntity* currentFiber; 
 
-    void SetMasterFiberEntity(FiberEntity* master) noexcept { masterFiber = master; }
+    inline void SetMasterFiberEntity(FiberEntity* master) noexcept { masterFiber = master; }
 
-    void SetCurrentFiberEntity(FiberEntity* current) noexcept { currentFiber = current; }
+    inline void SetCurrentFiberEntity(FiberEntity* current) noexcept { currentFiber = current; }
 
-    FiberEntity* GetMasterFiberEntity() noexcept { return masterFiber; } 
+    inline FiberEntity* GetMasterFiberEntity() noexcept { return masterFiber; } 
 
-    FiberEntity* GetCurrentFiberEntity() noexcept { return currentFiber; }
+    inline FiberEntity* GetCurrentFiberEntity() noexcept { return currentFiber; }
 
-    bool IsInFiberContext() noexcept { return GetCurrentFiber() != nullptr; }
+    inline bool IsInFiberContext() noexcept { return GetCurrentFiberEntity() != nullptr; }
 
-    void FreeFiberEntity(FiberEntity* fiber) noexcept;
+    inline void FreeFiberEntity(FiberEntity* fiber) noexcept;
 
     extern "C" void jump_context(void** self, void* to, void* context);
 

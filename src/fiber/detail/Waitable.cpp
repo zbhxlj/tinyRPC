@@ -1,7 +1,9 @@
-#include "Waitable.h"
 #include <memory>
 #include <mutex>
+
+#include "Waitable.h"
 #include "FiberEntity.h"
+#include "SchedulingGroup.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -56,11 +58,10 @@ void Waitable::ResetAwakened() {
 
 
 WaitableTimer::WaitableTimer(std::chrono::steady_clock::time_point expires_at)
-    // TODO: implement `SchedulingGroup`
     : sg_(SchedulingGroup::Current()),
       impl_(std::make_shared<Waitable>()) {
   timer_id_ = sg_->CreateTimer(
-      expires_at, [ref = impl_]() { OnTimerExpired(std::move(ref)); });
+        expires_at, [ref = impl_](auto) { OnTimerExpired(std::move(ref)); });
   sg_->EnableTimer(timer_id_);
 }
 
@@ -84,7 +85,7 @@ void WaitableTimer::wait() {
 void WaitableTimer::OnTimerExpired(std::shared_ptr<Waitable> ref) {
   auto fibers = ref->SetPersistentAwakened();
   for (auto f : fibers) {
-    f->sg_->ReadyFiber(f, std::unique_lock(f->scheduler_lock));
+    f->sg_->ReadyFiber(f, std::unique_lock(f->schedulerLock_));
   }
 }
 
@@ -100,7 +101,7 @@ void Mutex::unlock() {
     CHECK(fiber);  // Otherwise `was` must be 1 (as there's no waiter).
     splk.unlock();
     fiber->sg_->ReadyFiber(
-        fiber, std::unique_lock(fiber->scheduler_lock));
+        fiber, std::unique_lock(fiber->schedulerLock_));
   }
 }
 
@@ -124,13 +125,13 @@ void Mutex::LockSlow() {
   // Now the slow path lock can be unlocked.
   //
   // Indeed it's possible that we're awakened even before we call `Halt()`,
-  // but this issue is already addressed by `scheduler_lock` (which we're
+  // but this issue is already addressed by `schedulerLock_` (which we're
   // holding).
   splk.unlock();
 
   // Wait until we're woken by `unlock()`.
   //
-  // Given that `scheduler_lock` is held by us, anyone else who concurrently
+  // Given that `schedulerLock_` is held by us, anyone else who concurrently
   // tries to wake us up is blocking on it until `Halt()` has completed.
   // Hence no race here.
   current->sg_->Halt(current, std::move(slk));
@@ -147,7 +148,7 @@ class AsyncWaker {
       : sg_(sg), self_(self), wb_(wb) {}
 
   // The destructor does some sanity checks.
-  ~AsyncWaker() { CHECK_EQ(timer_, 0) <<"Have you called `Cleanup()`?"; }
+  ~AsyncWaker() { CHECK_EQ(timer_, nullptr) <<"Have you called `Cleanup()`?"; }
 
   // Set a timer to awake `self` once `expires_at` is reached.
   void SetTimer(std::chrono::steady_clock::time_point expires_at) {
@@ -167,7 +168,7 @@ class AsyncWaker {
           return;
         }
         wait_cb->waiter->sg_->ReadyFiber(
-            wait_cb->waiter, std::unique_lock(wait_cb->waiter->scheduler_lock));
+            wait_cb->waiter, std::unique_lock(wait_cb->waiter->schedulerLock_));
       }
     };
 
@@ -182,7 +183,7 @@ class AsyncWaker {
     // started, nothing special. But if `timer_cb` is running, we need to
     // prevent it from `ReadyFiber` us again (when we immediately sleep on
     // another unrelated thing.).
-    sg_->RemoveTimer(std::exchange(timer_, 0));
+    sg_->RemoveTimer(timer_);
     {
       // Here is the trick.
       //
@@ -193,6 +194,7 @@ class AsyncWaker {
       wait_cb_->awake = true;
     }  // `wait_cb_->awake` has been set, so other fields of us won't be touched
        // by `timer_cb`. we're safe to destruct from now on.
+    timer_.reset();
   } 
 
  private:
@@ -207,7 +209,7 @@ class AsyncWaker {
   FiberEntity* self_;
   WaitBlock* wb_;
   std::shared_ptr<WaitCb> wait_cb_;
-  std::uint64_t timer_ = 0;
+  TimerPtr timer_ ;
 };
 
 
@@ -228,7 +230,7 @@ bool ConditionVariable::wait_until(
   bool use_timeout = expires_at != std::chrono::steady_clock::time_point::max();
 
   // Add us to the wait queue.
-  std::unique_lock slk(current->scheduler_lock);
+  std::unique_lock slk(current->schedulerLock_);
   WaitBlock wb = {.waiter_ = current};
   CHECK(impl_.AddWaiter(&wb));
   AsyncWaker awaker(sg, current, &wb);
@@ -263,7 +265,7 @@ void ConditionVariable::notify_one() noexcept {
   if (!fiber) {
     return;
   }
-  fiber->sg_->ReadyFiber(fiber, std::unique_lock(fiber->scheduler_lock));
+  fiber->sg_->ReadyFiber(fiber, std::unique_lock(fiber->schedulerLock_));
 }
 
 void ConditionVariable::notify_all() noexcept {
@@ -285,7 +287,7 @@ void ConditionVariable::notify_all() noexcept {
 
   // Schedule the waiters.
   for (auto&& e : fibers) {
-    e->sg_->ReadyFiber(e, std::unique_lock(e->scheduler_lock));
+    e->sg_->ReadyFiber(e, std::unique_lock(e->schedulerLock_));
   }
 }
 

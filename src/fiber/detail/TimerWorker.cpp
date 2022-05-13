@@ -4,6 +4,7 @@
 #include "../../../include/glog/logging.h"
 #include "../../base/base.h"
 #include "TimerWorker.h"
+#include "SchedulingGroup.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -25,7 +26,7 @@ std::chrono::steady_clock::time_point GetSleepTimeout(
 }
 
 TimerWorker::TimerWorker(SchedulingGroup* sg)
-    : sg_(sg), latch(sg_->GroupSize() + 1), localQueues_(sg_->GroupSize() + 1) {}
+    : sg_(sg), latch_(sg_->GroupSize() + 1), localQueues_(sg_->GroupSize() + 1) {}
 
 TimerWorker::~TimerWorker() = default;
 
@@ -53,9 +54,10 @@ TimerPtr TimerWorker::CreateTimer(
     std::chrono::steady_clock::time_point initial_expires_at,
     std::chrono::nanoseconds interval, std::function<void(TimerPtr&)>&& cb) {
   CHECK(cb) << "No callback for the timer?";
-  FLARE_CHECK(interval > 0ns) <<
+  CHECK_LT(interval, static_cast<std::chrono::nanoseconds>(0ull)) <<
               "`interval` must be greater than 0 for periodic timers.";
-  if (std::chrono::steady_clock::now() > initial_expires_at + 10s)) {
+  if (std::chrono::steady_clock::now() > 
+            initial_expires_at + static_cast<std::chrono::seconds>(10ull)) {
     LOG(ERROR) << "`initial_expires_at` was specified as long ago. Corrected to now.";
     initial_expires_at = std::chrono::steady_clock::now();
   }
@@ -181,7 +183,7 @@ void TimerWorker::ReapThreadLocalQueues() {
 void TimerWorker::FireTimers() {
   auto now = std::chrono::steady_clock::now();
   while (!timers_.empty()) {
-    auto&& e = timers_.top();
+    TimerPtr& e =  const_cast<TimerPtr&>(timers_.top());
     if (e->cancelled_ == true) {
       timers_.pop();
       continue;

@@ -12,9 +12,10 @@ public:
     SpinLock() = default;
     ~SpinLock() = default;
 
-    void Lock() noexcept{
+    // Ugly lowercase to use `unique_lock`.
+    void lock() noexcept{
         // First try to grab lock.
-        if(TryLock()){
+        if(tryLock()){
             return;
         }
 
@@ -22,11 +23,11 @@ public:
         LockSlow();
     }
 
-    void UnLock() noexcept{
+    void unlock() noexcept{
         locked_.store(false);
     }
 
-    bool TryLock() noexcept{
+    bool tryLock() noexcept{
         return !locked_.exchange(true);
     }
 

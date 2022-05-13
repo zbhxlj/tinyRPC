@@ -135,7 +135,7 @@ void SchedulingGroup::Halt(
   self->state_ = FiberState::WAITING;
 
   master->OnResume(
-      [self_lock = scheduler_lock.release()]() { self_lock->UnLock(); });
+      [self_lock = scheduler_lock.release()]() { self_lock->unlock(); });
 
   // When we're back, we should be in the same fiber.
   CHECK_EQ(self, GetCurrentFiberEntity());

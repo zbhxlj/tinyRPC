@@ -9,6 +9,7 @@
 #include "FiberEntity.h"
 #include "../../base/DoublyLinkedList.h"
 #include "../../base/thread/SpinLock.h"
+#include "TimerWorker.h"
 #include "glog/logging.h"
 
 namespace tinyRPC::fiber::detail{
@@ -70,7 +71,7 @@ class WaitableTimer {
 
  private:
   SchedulingGroup* sg_;
-  std::uint64_t timer_id_;
+  TimerPtr timer_id_;
 
   std::shared_ptr<Waitable> impl_;
 };

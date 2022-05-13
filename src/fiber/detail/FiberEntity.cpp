@@ -4,6 +4,9 @@
 #include "../../include/gflags/gflags.h"
 
 #include "FiberEntity.h"
+#include "SchedulingGroup.h"
+#include "Waitable.h"
+#include "StackAllocator.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -40,7 +43,6 @@ static void FiberProc(void* context){
         GetMasterFiberEntity()->OnResume([self] { FreeFiberEntity(self); });
     } else {
         // Grab lock first to avoid block when running on master fiber.
-        // TODO: implement `ExitBarrier`
         auto ebl = self->exitBarrier_->GrabLock();
 
         self->state_ = FiberState::DEAD;
@@ -70,8 +72,7 @@ void FiberEntity::OnResume(std::function<void()>&& cb) noexcept {
 }
 
 ErasedPtr* FiberEntity::GetFiberLocalStorage(std::size_t index) noexcept {
-    CHECK_NE(fiberLocalStorage_->end(), fiberLocalStorage_.find(index));
-    return (*fiberLocalStorage_)[index];
+    return &(*fiberLocalStorage_)[index];
 }
 
 void SetUpMasterFiberEntity() noexcept {
@@ -81,7 +82,6 @@ void SetUpMasterFiberEntity() noexcept {
   masterFiberImpl.state_ = FiberState::RUNNING;
   masterFiberImpl.stackSize_ = 0;
 
-  // TODO: implement scheduling group. 
   masterFiberImpl.sg_ = SchedulingGroup::Current();
 
   masterFiber = &masterFiberImpl;
@@ -91,9 +91,8 @@ void SetUpMasterFiberEntity() noexcept {
 
 FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
                                 std::function<void()>&& startProc, 
-                                std::shared_ptr<ExitBarrier_>&& barrier) noexcept {
-  // TODO: implement `UserStack`.
-  auto stack = CreateUserStack();
+                                std::shared_ptr<ExitBarrier>&& barrier) noexcept {
+  auto stack = CreateStack();
   auto stack_size = FLAGS_FiberStackSize;
   auto bottom = reinterpret_cast<char*>(stack) + stack_size;
   // `FiberEntity` is stored at the stack bottom.
@@ -116,8 +115,7 @@ void FreeFiberEntity(FiberEntity* fiber) noexcept {
   fiber->~FiberEntity();
 
   auto p = reinterpret_cast<char*>(fiber) + sizeof(FiberEntity) - FLAGS_FiberStackSize;
-  // TODO: implement `UserStack`.
-  FreeUserStack(p);
+  DestroyStack(p);
 }
 
 }
