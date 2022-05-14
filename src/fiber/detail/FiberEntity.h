@@ -8,6 +8,7 @@
 
 #include "../../base/thread/SpinLock.h"
 #include "../../base/ErasedPtr.h"
+#include "../../base/Function.h"
 
 namespace tinyRPC::fiber::detail{
     
@@ -31,7 +32,7 @@ public:
     void Resume() noexcept;
 
     // Run this cb as resume_proc_ and then resume.
-    void OnResume(std::function<void()>&& cb) noexcept;
+    void OnResume(UniqueFunction<void()>&& cb) noexcept;
 
     ErasedPtr* GetFiberLocalStorage(std::size_t index) noexcept;
 
@@ -52,9 +53,9 @@ public:
     std::unique_ptr<std::unordered_map<std::size_t, ErasedPtr>> fiberLocalStorage_; 
 
     // ResumeProc helps extra operation when scheduling.
-    std::function<void()> resumeProc_;
+    UniqueFunction<void()> resumeProc_;
 
-    std::function<void()> startProc_;
+    UniqueFunction<void()> startProc_;
 };
     void SetUpMasterFiberEntity() noexcept;
 
@@ -91,6 +92,10 @@ public:
             *cb = nullptr;
         }
     }
+
+    FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
+                                UniqueFunction<void()>&& startProc, 
+                                std::shared_ptr<ExitBarrier>&& barrier) noexcept;
 
 }
 

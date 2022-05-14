@@ -18,7 +18,7 @@ namespace tinyRPC::fiber::detail{
 
 class TimerWorker;
 class SchedulingGroup;
-class Timer;
+struct Timer;
 using TimerPtr = std::shared_ptr<Timer>;
 
 struct Timer{
@@ -93,12 +93,12 @@ private:
     void FireTimers();
     void WakeWorkerIfNeeded(std::chrono::steady_clock::time_point local_expires_at);
 
+    SchedulingGroup* sg_;
 
     std::priority_queue<TimerPtr, std::vector<TimerPtr>, TimerCmp> timers_;
     std::vector<ThreadLocalQueue*> localQueues_;
     std::chrono::steady_clock::duration nextExpireAt = std::chrono::steady_clock::duration::max();
     std::atomic<bool> stopped_ {false};
-    SchedulingGroup* sg_;
     std::latch latch_;
     std::thread worker_;
     // Sleep on this.

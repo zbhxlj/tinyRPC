@@ -10,6 +10,8 @@
 
 namespace tinyRPC::fiber::detail{
 
+thread_local SchedulingGroup* SchedulingGroup::current_{nullptr};
+
 class SchedulingGroup::WaitSlot {
  public:
   void Wake() noexcept {

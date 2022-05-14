@@ -1,6 +1,6 @@
-add_executable(glog_test glog_test.cpp)
-target_include_directories(glog_test PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(glog_test
+add_executable(GlogTest GlogTest.cpp)
+target_include_directories(GlogTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(GlogTest
         ${PROJECT_SOURCE_DIR}/lib/glog/libglog.a
         ${PROJECT_SOURCE_DIR}/lib/gflags/libgflags.a
         ${PROJECT_SOURCE_DIR}/lib/googletest/libgtest_main.a
@@ -10,4 +10,4 @@ target_link_libraries(glog_test
         )
 
 include(GoogleTest)
-gtest_discover_tests(glog_test)
+gtest_discover_tests(GlogTest)

@@ -1,16 +1,15 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include "../../../include/gflags/gflags.h"
 #include "../../../include/glog/logging.h"
 #include "StackAllocator.h"
 
-namespace tinyRPC::fiber::detai{
-DECLARE_uint32(FiberStackSize);
-
+namespace tinyRPC::fiber::detail{
+    
 constexpr uint64_t kPageSize = 4 * 1024;
+
 void* CreateStack(){
-    auto p = mmap(nullptr, FLAGS_FiberStackSize, PROT_READ | PROT_WRITE, 
+    auto p = mmap(nullptr, kStackSize, PROT_READ | PROT_WRITE, 
         MAP_ANONYMOUS | MAP_PRIVATE | MAP_STACK, 0, 0);
     CHECK(p) << "Mmap failed : out-of-memory error\n";
     CHECK_EQ(reinterpret_cast<std::uint64_t>(p) % kPageSize, 0) 
@@ -26,7 +25,7 @@ void* CreateStack(){
 
 
 void DestroyStack(void* ptr){
-    CHECK_EQ(munmap(ptr, FLAGS_FiberStackSize), 0) << "Munmap error\n";
+    CHECK_EQ(munmap(ptr, kStackSize), 0) << "Munmap error\n";
 }
 
 } // namespace tinyRPC::fiber::detail

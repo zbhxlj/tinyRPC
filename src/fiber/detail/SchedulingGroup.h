@@ -11,15 +11,15 @@
 
 namespace tinyRPC::fiber::detail{
 
-class FiberEntity;
-class Timer;
+struct FiberEntity;
+struct Timer;
 
 class SchedulingGroup {
  public:
   inline static FiberEntity* const kSchedulingGroupShuttingDown =
       reinterpret_cast<FiberEntity*>(0x1);
 
-  inline static constexpr std::size_t kTimerWorkerIndex = -1;
+  inline static constexpr std::size_t kTimerWorkerIndex = -1ul;
 
   explicit SchedulingGroup(std::size_t size);
 

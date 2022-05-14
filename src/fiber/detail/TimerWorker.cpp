@@ -26,7 +26,7 @@ std::chrono::steady_clock::time_point GetSleepTimeout(
 }
 
 TimerWorker::TimerWorker(SchedulingGroup* sg)
-    : sg_(sg), latch_(sg_->GroupSize() + 1), localQueues_(sg_->GroupSize() + 1) {}
+    : sg_(sg), localQueues_(sg->GroupSize() + 1), latch_(sg->GroupSize() + 1) {}
 
 TimerWorker::~TimerWorker() = default;
 

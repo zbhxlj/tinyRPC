@@ -18,7 +18,7 @@ namespace tinyRPC{
         std::latch latch(10);
 
         for(auto&& t : threads){
-            t = std::thread([&latch, &counter, &spinLock, threadCounter](){
+            t = std::thread([&latch, &counter, &spinLock](){
                 latch.count_down();
                 for(auto i = threadCounter; i > 0; i--){
                     spinLock.lock();

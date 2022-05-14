@@ -1,7 +1,6 @@
 #include <memory>
 
 #include "../../include/glog/logging.h"
-#include "../../include/gflags/gflags.h"
 
 #include "FiberEntity.h"
 #include "SchedulingGroup.h"
@@ -9,8 +8,6 @@
 #include "StackAllocator.h"
 
 namespace tinyRPC::fiber::detail{
-
-DEFINE_uint32(FiberStackSize, 128 * 1024, "Fiber Stack Size");
 
 void FiberEntity::Resume() noexcept {
   auto caller = GetCurrentFiberEntity();
@@ -45,7 +42,7 @@ static void FiberProc(void* context){
         // Grab lock first to avoid block when running on master fiber.
         auto ebl = self->exitBarrier_->GrabLock();
 
-        self->state_ = FiberState::DEAD;
+      self->state_ = FiberState::DEAD;
 
         GetMasterFiberEntity()->OnResume([self, lk = std::move(ebl)]() mutable {
             auto eb = std::move(self->exitBarrier_);
@@ -62,7 +59,7 @@ static void FiberProc(void* context){
 
 FiberEntity::FiberEntity() {}
 
-void FiberEntity::OnResume(std::function<void()>&& cb) noexcept {
+void FiberEntity::OnResume(UniqueFunction<void()>&& cb) noexcept {
   auto caller = GetCurrentFiberEntity();
   CHECK(!resumeProc_) << "Execute `OnResume()` twice. (Before the previous one has finished)\n";
   CHECK_NE(caller, this) <<  "Calling `Resume()` on self is undefined.\n";
@@ -88,12 +85,16 @@ void SetUpMasterFiberEntity() noexcept {
   SetCurrentFiberEntity(masterFiber);
 }
 
+void* FiberEntity::GetStackHighAddr() const noexcept{
+    return reinterpret_cast<char*>(const_cast<FiberEntity*>(this));
+  }
+
 
 FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
-                                std::function<void()>&& startProc, 
+                                UniqueFunction<void()>&& startProc, 
                                 std::shared_ptr<ExitBarrier>&& barrier) noexcept {
   auto stack = CreateStack();
-  auto stack_size = FLAGS_FiberStackSize;
+  auto stack_size = kStackSize;
   auto bottom = reinterpret_cast<char*>(stack) + stack_size;
   // `FiberEntity` is stored at the stack bottom.
   auto ptr = bottom - sizeof(FiberEntity);
@@ -114,7 +115,7 @@ FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
 void FreeFiberEntity(FiberEntity* fiber) noexcept {
   fiber->~FiberEntity();
 
-  auto p = reinterpret_cast<char*>(fiber) + sizeof(FiberEntity) - FLAGS_FiberStackSize;
+  auto p = reinterpret_cast<char*>(fiber) + sizeof(FiberEntity) - kStackSize;
   DestroyStack(p);
 }
 
