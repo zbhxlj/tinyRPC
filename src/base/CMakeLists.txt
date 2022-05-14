@@ -1,12 +1,12 @@
 include(GoogleTest)
 
-file(GLOB_RECURSE src_base ./**.cpp)
-list(REMOVE_ITEM src_base ./**Test.cpp)
+file(GLOB_RECURSE src_base *.cpp)
+list(FILTER src_base EXCLUDE REGEX "Test.cpp$")
 
 add_library(base STATIC ${src_base})
 
 #SpinLockTest
-add_executable(SpinLockTest thread/SpinLockTest.cpp)
+add_executable(SpinLockTest SpinLockTest.cpp)
 target_include_directories(SpinLockTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SpinLockTest ${libcommon})
 gtest_discover_tests(SpinLockTest)

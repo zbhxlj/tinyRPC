@@ -56,16 +56,17 @@ TEST(BasicRoutineTest, RunFibers) {
   context.executed_fibers = 0;
   context.yields = 0;
 
-  static const auto N = 1024 * 16;
+  static const auto N = 16;
   LOG(INFO) << "Starting "<< N <<" fibers.";
 
+  constexpr uint32_t workerNum = 1;
   auto scheduling_group =
-      std::make_unique<SchedulingGroup>(16);
-  std::thread workers[16];
+      std::make_unique<SchedulingGroup>(workerNum);
+  std::thread workers[workerNum];
   TimerWorker dummy(scheduling_group.get());
   scheduling_group->SetTimerWorker(&dummy);
 
-  for (int i = 0; i != 16; ++i) {
+  for (int i = 0; i != workerNum; ++i) {
     workers[i] = std::thread(WorkerProcTest, scheduling_group.get(), i);
   }
 

@@ -5,8 +5,9 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <atomic>
 
-#include "../../base/thread/SpinLock.h"
+#include "../../base/SpinLock.h"
 #include "../../base/ErasedPtr.h"
 #include "../../base/Function.h"
 
@@ -20,10 +21,9 @@ enum class FiberState{ READY, RUNNING, WAITING, DEAD };
 // Fiber entities carry data and are indeed the underlying runnable object.
 // Another considered name is `FiberData`.
 
-// TODO: Do we need `enable_shared_from_this` ?
-struct FiberEntity : public std::enable_shared_from_this<FiberEntity>{
+struct FiberEntity{
 public:
-    FiberEntity();
+    FiberEntity() noexcept;
 
     void* GetStackHighAddr() const noexcept;
 
@@ -40,12 +40,12 @@ public:
     FiberState state_;
 
     // SchedulerLock protects when fiber in state transition.
-    SpinLock schedulerLock_;
+    SpinLock schedulerLock_{};
 
     // SchedulingGroup this fiber belongs to.
-    SchedulingGroup* sg_;
+    SchedulingGroup* sg_{nullptr};
 
-    void* stackSaveBuffer_;
+    void* stackSaveBuffer_{nullptr};
     std::size_t stackSize_;
 
     std::shared_ptr<ExitBarrier> exitBarrier_;

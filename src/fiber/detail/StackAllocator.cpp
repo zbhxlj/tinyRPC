@@ -5,8 +5,6 @@
 #include "StackAllocator.h"
 
 namespace tinyRPC::fiber::detail{
-    
-constexpr uint64_t kPageSize = 4 * 1024;
 
 void* CreateStack(){
     auto p = mmap(nullptr, kStackSize, PROT_READ | PROT_WRITE, 

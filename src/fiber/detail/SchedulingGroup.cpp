@@ -207,6 +207,9 @@ bool SchedulingGroup::WakeUpOneDeepSleepingWorker() noexcept {
   // We indeed have to wake someone that is in deep sleep then.
   while (true) {
     auto last_sleeping = __builtin_ffsll(sleepingWorkers_) - 1;
+    if(last_sleeping < 0) {
+      return true;
+    }
     auto claiming_mask = 1ULL << last_sleeping;
 
     if (sleepingWorkers_.fetch_and(~claiming_mask) & claiming_mask) {

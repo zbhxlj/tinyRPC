@@ -7,7 +7,7 @@
 
 #include "../../../glog/logging.h"
 #include "TimerWorker.h"
-#include "../../base/thread/SpinLock.h"
+#include "../../base/SpinLock.h"
 
 namespace tinyRPC::fiber::detail{
 

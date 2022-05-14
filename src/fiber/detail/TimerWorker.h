@@ -12,7 +12,7 @@
 #include <condition_variable>
 #include <latch>
 
-#include "../../base/thread/SpinLock.h"
+#include "../../base/SpinLock.h"
 
 namespace tinyRPC::fiber::detail{
 

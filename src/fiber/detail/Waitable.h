@@ -8,7 +8,7 @@
 
 #include "FiberEntity.h"
 #include "../../base/DoublyLinkedList.h"
-#include "../../base/thread/SpinLock.h"
+#include "../../base/SpinLock.h"
 #include "TimerWorker.h"
 #include "glog/logging.h"
 

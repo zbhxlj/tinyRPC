@@ -57,7 +57,7 @@ static void FiberProc(void* context){
     CHECK(0);  // Can't be here.
 }
 
-FiberEntity::FiberEntity() {}
+FiberEntity::FiberEntity() noexcept {}
 
 void FiberEntity::OnResume(UniqueFunction<void()>&& cb) noexcept {
   auto caller = GetCurrentFiberEntity();
@@ -94,7 +94,7 @@ FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
                                 UniqueFunction<void()>&& startProc, 
                                 std::shared_ptr<ExitBarrier>&& barrier) noexcept {
   auto stack = CreateStack();
-  auto stack_size = kStackSize;
+  auto stack_size = kStackSize - kPageSize;
   auto bottom = reinterpret_cast<char*>(stack) + stack_size;
   // `FiberEntity` is stored at the stack bottom.
   auto ptr = bottom - sizeof(FiberEntity);

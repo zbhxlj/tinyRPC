@@ -7,6 +7,8 @@ namespace tinyRPC::fiber::detail{
 
 constexpr uint32_t kStackSize = 1024 * 128;
 
+constexpr uint64_t kPageSize = 4 * 1024;
+
 void* CreateStack();
 
 void DestroyStack(void* ptr);
