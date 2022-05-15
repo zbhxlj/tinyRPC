@@ -7,6 +7,7 @@
 #include "SchedulingGroup.h"
 #include "FiberEntity.h"
 #include "../../base/ScopedDeferred.h"
+#include "../../../include/glog/logging.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -55,8 +56,9 @@ SchedulingGroup::~SchedulingGroup() = default;
 
 FiberEntity* SchedulingGroup::AcquireFiber() noexcept {
   std::scoped_lock lk(lock_);
-  if (auto rc = readyFiberQueue_.front()) {
-      readyFiberQueue_.pop();
+  if (!readyFiberQueue_.empty()) {
+    auto rc = readyFiberQueue_.front();
+    readyFiberQueue_.pop();
     std::scoped_lock _(rc->schedulerLock_);
 
     CHECK(rc->state_ == FiberState::READY);

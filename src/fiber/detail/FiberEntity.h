@@ -39,9 +39,6 @@ public:
 public:    
     FiberState state_;
 
-    // SchedulerLock protects when fiber in state transition.
-    SpinLock schedulerLock_{};
-
     // SchedulingGroup this fiber belongs to.
     SchedulingGroup* sg_{nullptr};
 
@@ -56,6 +53,9 @@ public:
     UniqueFunction<void()> resumeProc_;
 
     UniqueFunction<void()> startProc_;
+
+    // SchedulerLock protects when fiber in state transition.
+    SpinLock schedulerLock_{};
 };
     void SetUpMasterFiberEntity() noexcept;
 
