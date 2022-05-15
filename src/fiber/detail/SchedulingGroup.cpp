@@ -169,7 +169,6 @@ void SchedulingGroup::SwitchTo(FiberEntity* self, FiberEntity* to) noexcept {
 void SchedulingGroup::EnterGroup(std::size_t index) {
   CHECK(current_ == nullptr) << "This pthread worker has already joined a scheduling group.";
   CHECK(timerWorker_ != nullptr) << "The timer worker is not available yet.";
-  CHECK_LT(index, 64) << "The worker number should < 64.";
 
   // Initialize thread-local timer queue for this worker.
   timerWorker_->InitializeLocalQueue(index);

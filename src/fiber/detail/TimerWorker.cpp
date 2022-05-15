@@ -54,7 +54,7 @@ TimerPtr TimerWorker::CreateTimer(
     std::chrono::steady_clock::time_point initial_expires_at,
     std::chrono::nanoseconds interval, std::function<void(TimerPtr&)>&& cb) {
   CHECK(cb) << "No callback for the timer?";
-  CHECK_LT(interval, static_cast<std::chrono::nanoseconds>(0ull)) <<
+  CHECK_GT(interval, static_cast<std::chrono::nanoseconds>(0ull)) <<
               "`interval` must be greater than 0 for periodic timers.";
   if (std::chrono::steady_clock::now() > 
             initial_expires_at + static_cast<std::chrono::seconds>(10ull)) {
@@ -183,7 +183,7 @@ void TimerWorker::ReapThreadLocalQueues() {
 void TimerWorker::FireTimers() {
   auto now = std::chrono::steady_clock::now();
   while (!timers_.empty()) {
-    TimerPtr& e =  const_cast<TimerPtr&>(timers_.top());
+    TimerPtr e =  const_cast<TimerPtr&>(timers_.top());
     if (e->cancelled_ == true) {
       timers_.pop();
       continue;

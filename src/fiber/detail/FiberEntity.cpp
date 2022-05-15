@@ -92,7 +92,7 @@ void* FiberEntity::GetStackHighAddr() const noexcept{
 
 FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
                                 UniqueFunction<void()>&& startProc, 
-                                std::shared_ptr<ExitBarrier>&& barrier) noexcept {
+                                std::shared_ptr<ExitBarrier> barrier) noexcept {
   auto stack = CreateStack();
   auto stack_size = kStackSize - kPageSize;
   auto bottom = reinterpret_cast<char*>(stack) + stack_size;
