@@ -95,7 +95,7 @@ public:
 
     FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
                                 UniqueFunction<void()>&& startProc, 
-                                std::shared_ptr<ExitBarrier> barrier) noexcept;
+                                std::shared_ptr<ExitBarrier> barrier = nullptr) noexcept;
 
 }
 

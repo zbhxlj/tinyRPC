@@ -98,7 +98,8 @@ FiberEntity* SchedulingGroup::WaitForFiber() noexcept {
 
 FiberEntity* SchedulingGroup::RemoteAcquireFiber() noexcept {
   std::scoped_lock lk(lock_);
-  if (auto rc = readyFiberQueue_.front()) {
+  if(!readyFiberQueue_.empty()){
+    auto rc = readyFiberQueue_.front();
     readyFiberQueue_.pop();
     std::scoped_lock _(rc->schedulerLock_);
 

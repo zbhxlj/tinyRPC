@@ -196,8 +196,9 @@ void TimerWorker::FireTimers() {
     auto cb = std::move(e->cb_);
     lk.unlock();
     
-    CHECK(cb) << "No callback set" << std::endl;
-    cb(e);
+    if(cb){
+      cb(e);
+    }
 
     // If it's a periodic timer, add a new pending timer.
     if (e->periodic_) {

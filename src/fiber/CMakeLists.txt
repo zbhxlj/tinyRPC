@@ -44,3 +44,33 @@ target_link_libraries(FiberEntityTest
         )
 
 gtest_discover_tests(FiberEntityTest)
+
+add_executable(TimerWorkerTest detail/TimerWorkerTest.cpp)
+target_include_directories(TimerWorkerTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(TimerWorkerTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(TimerWorkerTest)
+
+add_executable(FiberWorkerTest detail/FiberWorkerTest.cpp)
+target_include_directories(FiberWorkerTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(FiberWorkerTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(FiberWorkerTest)
+
+add_executable(WaitableTest detail/WaitableTest.cpp)
+target_include_directories(WaitableTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(WaitableTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(WaitableTest)
