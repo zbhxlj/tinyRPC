@@ -69,6 +69,9 @@ void FiberEntity::OnResume(UniqueFunction<void()>&& cb) noexcept {
 }
 
 ErasedPtr* FiberEntity::GetFiberLocalStorage(std::size_t index) noexcept {
+    if(fiberLocalStorage_ == nullptr){
+      fiberLocalStorage_ = std::make_unique<std::unordered_map<std::size_t, ErasedPtr>>();
+    }
     return &(*fiberLocalStorage_)[index];
 }
 

@@ -19,20 +19,28 @@ add_dependencies(fiber base)
 add_executable(SchedulingGroupTest detail/SchedulingGroupTest.cpp)
 target_include_directories(SchedulingGroupTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SchedulingGroupTest
-        ${libcommon}
         fiber
         base
+        ${libcommon}
         )
                 
 gtest_discover_tests(SchedulingGroupTest)
 
-add_executable(Debug detail/debug.cpp)
-target_include_directories(Debug PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(Debug
-        ${PROJECT_SOURCE_DIR}/lib/glog/libglog.a
-        ${PROJECT_SOURCE_DIR}/lib/gflags/libgflags.a
-        ${PROJECT_SOURCE_DIR}/lib/libunwind/libunwind.so
-        pthread
+add_executable(ContextBenchmark detail/ContextBenchmark.cpp)
+target_include_directories(ContextBenchmark PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(ContextBenchmark
+${PROJECT_SOURCE_DIR}/lib/benchmark/libbenchmark.a
+${PROJECT_SOURCE_DIR}/lib/benchmark/libbenchmark_main.a
         fiber
         base
         )
+
+add_executable(FiberEntityTest detail/FiberEntityTest.cpp)
+target_include_directories(FiberEntityTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(FiberEntityTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(FiberEntityTest)

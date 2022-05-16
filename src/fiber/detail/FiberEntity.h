@@ -73,7 +73,7 @@ public:
 
     inline bool IsInFiberContext() noexcept { return GetCurrentFiberEntity() != nullptr; }
 
-    inline void FreeFiberEntity(FiberEntity* fiber) noexcept;
+    void FreeFiberEntity(FiberEntity* fiber) noexcept;
 
     extern "C" void jump_context(void** self, void* to, void* context);
 
