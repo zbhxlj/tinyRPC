@@ -64,7 +64,7 @@ void RunInFiber(std::size_t times, F cb) {
 
 }
 
-TEST(DISABLED_WaitableTest, WaitableTimer) {
+TEST(WaitableTest, WaitableTimer) {
   RunInFiber(100, [](auto) {
     auto now = std::chrono::steady_clock::now();
     WaitableTimer wt(now + 1s);
@@ -143,7 +143,7 @@ TEST(WaitableTest, ConditionVariable) {
 TEST(WaitableTest, ConditionVariable2) {
   constexpr auto N = 10;
 
-  for (int i = 0; i != 50; ++i) {
+  for (int i = 0; i != 10; ++i) {
     Mutex m[N];
     ConditionVariable cv[N];
     bool f[N] = {};

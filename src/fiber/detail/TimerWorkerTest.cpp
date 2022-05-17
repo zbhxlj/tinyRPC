@@ -65,7 +65,7 @@ TEST(TimerWorker, SetTimerInTimerContext) {
     };
     (void)SetTimerAt(scheduling_group,
                      std::chrono::steady_clock::time_point::min(), timer_cb);
-    std::this_thread::sleep_for(static_cast<std::chrono::milliseconds>(10));
+    std::this_thread::sleep_for(static_cast<std::chrono::milliseconds>(100));
     scheduling_group->LeaveGroup();
   });
 
@@ -79,7 +79,7 @@ TEST(TimerWorker, SetTimerInTimerContext) {
 
 std::atomic<std::size_t> timer_set, timer_removed;
 
-TEST(TimerWorker, DISABLED_Torture) {
+TEST(TimerWorker, Torture) {
   constexpr auto N = 100'000;
   // If there are enough threads(may be > 4), we will core dump this test
   // due to invalid access when timerWorker try to access thread_local

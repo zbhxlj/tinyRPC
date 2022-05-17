@@ -61,7 +61,7 @@ TEST(FiberWorker, StealFiber) {
 }
 
 // Run too long, disable it.
-TEST(FiberWorker, DISABLED_Torture) {
+TEST(FiberWorker, Torture) {
   constexpr auto T = 64;
   // Setting it too large cause `vm.max_map_count` overrun.
   constexpr auto N = 32768;

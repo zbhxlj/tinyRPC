@@ -36,6 +36,7 @@ ${PROJECT_SOURCE_DIR}/lib/benchmark/libbenchmark_main.a
         base
         )
 
+# FiberEntityTest
 add_executable(FiberEntityTest detail/FiberEntityTest.cpp)
 target_include_directories(FiberEntityTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(FiberEntityTest
@@ -44,8 +45,10 @@ target_link_libraries(FiberEntityTest
         ${libcommon}
         )
 
+
 gtest_discover_tests(FiberEntityTest)
 
+# TimerWorkerTest
 add_executable(TimerWorkerTest detail/TimerWorkerTest.cpp)
 target_include_directories(TimerWorkerTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(TimerWorkerTest
@@ -56,6 +59,7 @@ target_link_libraries(TimerWorkerTest
 
 gtest_discover_tests(TimerWorkerTest)
 
+# FiberWorkerTest
 add_executable(FiberWorkerTest detail/FiberWorkerTest.cpp)
 target_include_directories(FiberWorkerTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(FiberWorkerTest
@@ -66,6 +70,7 @@ target_link_libraries(FiberWorkerTest
 
 gtest_discover_tests(FiberWorkerTest)
 
+# WaitableTest
 add_executable(WaitableTest detail/WaitableTest.cpp)
 target_include_directories(WaitableTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(WaitableTest
@@ -76,6 +81,7 @@ target_link_libraries(WaitableTest
 
 gtest_discover_tests(WaitableTest)
 
+# ConditionalVariableTest
 add_executable(ConditionalVariableTest ConditionalVariableTest.cpp)
 target_include_directories(ConditionalVariableTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(ConditionalVariableTest
@@ -85,3 +91,58 @@ target_link_libraries(ConditionalVariableTest
         )
 
 gtest_discover_tests(ConditionalVariableTest)
+
+# FiberTest
+add_executable(FiberTest FiberTest.cpp)
+target_include_directories(FiberTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(FiberTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(FiberTest)
+
+# FiberLocalTest
+add_executable(FiberLocalTest FiberLocalTest.cpp)
+target_include_directories(FiberLocalTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(FiberLocalTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(FiberLocalTest)
+
+# LatchTest
+add_executable(LatchTest LatchTest.cpp)
+target_include_directories(LatchTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(LatchTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(LatchTest)
+
+# ThisFiberTest
+add_executable(ThisFiberTest ThisFiberTest.cpp)
+target_include_directories(ThisFiberTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(ThisFiberTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(ThisFiberTest)
+
+# TimerTest
+add_executable(TimerTest TimerTest.cpp)
+target_include_directories(TimerTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(TimerTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(TimerTest)

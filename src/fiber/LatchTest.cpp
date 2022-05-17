@@ -1,22 +1,23 @@
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <thread>
 
-#include "gtest/gtest.h"
+#include "../../include/gtest/gtest.h"
 
 #include "Latch.h"
 #include "Testing.h"
-#include "flare/fiber/fiber.h"
-#include "flare/fiber/this_fiber.h"
+#include "Fiber.h"
+#include "ThisFiber.h"
 
 using namespace std::literals;
 
-namespace flare::fiber {
+namespace tinyRPC::fiber {
 
 std::atomic<bool> exiting{false};
 
 void RunTest() {
-  std::atomic<std::size_t> local_count = 0, remote_count = 0;
+  std::atomic<std::size_t> local_count {0}, remote_count {0};
   while (!exiting) {
     Latch l(1);
     auto called = std::make_shared<std::atomic<bool>>(false);
@@ -43,7 +44,7 @@ TEST(Latch, Torture) {
     for (auto&& f : fs) {
       f = Fiber(RunTest);
     }
-    std::this_thread::sleep_for(10s);
+    std::this_thread::sleep_for(3s);
     exiting = true;
     for (auto&& f : fs) {
       f.join();
@@ -71,10 +72,10 @@ TEST(Latch, WaitFor) {
 TEST(Latch, WaitUntil) {
   testing::RunAsFiber([] {
     Latch l(1);
-    ASSERT_FALSE(l.wait_until(ReadSteadyClock() + 1s));
+    ASSERT_FALSE(l.wait_until(std::chrono::steady_clock::now() + 1s));
     l.count_down();
-    ASSERT_TRUE(l.wait_until(ReadSteadyClock()));
+    ASSERT_TRUE(l.wait_until(std::chrono::steady_clock::now()));
   });
 }
 
-}  // namespace flare::fiber
+}  // namespace tinyRPC::fiber

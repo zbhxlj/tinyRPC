@@ -14,8 +14,8 @@ public:
 
   std::size_t Next();
 
-// TODO: Maybe friend class.
 private:
+  friend class Singleton<IndexAlloc>;
   IndexAlloc() = default;
   ~IndexAlloc() = default;
 
