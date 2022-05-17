@@ -64,7 +64,7 @@ void RunInFiber(std::size_t times, F cb) {
 
 }
 
-TEST(WaitableTest, WaitableTimer) {
+TEST(DISABLED_WaitableTest, WaitableTimer) {
   RunInFiber(100, [](auto) {
     auto now = std::chrono::steady_clock::now();
     WaitableTimer wt(now + 1s);

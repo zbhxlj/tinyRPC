@@ -29,8 +29,7 @@ namespace {
 Fiber::Fiber() = default;
 
 Fiber::~Fiber() {
-  CHECK(!joinable()) << "You need to call either `join()` or `detach()` \
-                                prior to destroy a fiber.";
+  CHECK(!joinable()) << "You need to call either `join()` or `detach()` prior to destroy a fiber.";
 }
 
 Fiber::Fiber(UniqueFunction<void()>&& start) {
@@ -39,6 +38,7 @@ Fiber::Fiber(UniqueFunction<void()>&& start) {
 
   // TODO: implement ExitBarrier
   auto fiberEntity = CreateFiberEntity(sg, std::move(start), std::make_shared<ExitBarrier>());
+  joinImpl_ = fiberEntity->exitBarrier_;
   sg->StartFiber(fiberEntity);
 }
 
@@ -59,14 +59,14 @@ Fiber::Fiber(UniqueFunction<void()>&& start) {
 // }
 
 void Fiber::detach() {
-  CHECK(joinable())<<  "The fiber is in detached state.";
+  CHECK(joinable()) <<  "The fiber is in detached state.";
   joinImpl_ = nullptr;
 }
 
 void Fiber::join() {
   CHECK(joinable()) << "The fiber is in detached state.";
   joinImpl_->Wait();
-  joinImpl_->Reset();
+  joinImpl_.reset();
 }
 
 bool Fiber::joinable() const { return !!joinImpl_; }
