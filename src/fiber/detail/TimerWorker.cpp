@@ -36,7 +36,7 @@ TimerWorker* TimerWorker::GetTimerOwner(TimerPtr& timer) {
 
 TimerPtr TimerWorker::CreateTimer(
     std::chrono::steady_clock::time_point expires_at,
-    std::function<void(TimerPtr&)>&& cb) {
+    UniqueFunction<void(TimerPtr&)>&& cb) {
   CHECK(cb) << "No callback for the timer?";
 
   auto timer = std::make_shared<Timer>();
@@ -52,7 +52,7 @@ TimerPtr TimerWorker::CreateTimer(
 
 TimerPtr TimerWorker::CreateTimer(
     std::chrono::steady_clock::time_point initial_expires_at,
-    std::chrono::nanoseconds interval, std::function<void(TimerPtr&)>&& cb) {
+    std::chrono::nanoseconds interval, UniqueFunction<void(TimerPtr&)>&& cb) {
   CHECK(cb) << "No callback for the timer?";
   CHECK_GT(interval, static_cast<std::chrono::nanoseconds>(0ull)) <<
               "`interval` must be greater than 0 for periodic timers.";
@@ -82,7 +82,7 @@ void TimerWorker::RemoveTimer(TimerPtr& timer) {
   CHECK_EQ(timer->owner_, this) <<
                  "The timer you're trying to detach does not belong to this "
                  "scheduling group.";
-  std::function<void(TimerPtr&)> cb;
+  UniqueFunction<void(TimerPtr&)> cb;
   {
     std::scoped_lock _(timer->lock_);
     timer->cancelled_.store(true);

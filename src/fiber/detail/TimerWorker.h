@@ -13,6 +13,7 @@
 #include <latch>
 
 #include "../../base/SpinLock.h"
+#include "../../base/Function.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -26,7 +27,7 @@ struct Timer{
     std::atomic<bool> cancelled_ {false};
     bool periodic_ = false;
     TimerWorker* owner_ {nullptr};
-    std::function<void(TimerPtr& )> cb_;
+    UniqueFunction<void(TimerPtr& )> cb_;
     std::chrono::steady_clock::time_point expiresAt_;
     std::chrono::nanoseconds interval_;
 };
@@ -53,10 +54,10 @@ public:
     static TimerWorker* GetTimerOwner(TimerPtr& );
 
     TimerPtr CreateTimer(std::chrono::steady_clock::time_point expires_at,
-                            std::function<void(TimerPtr&)>&& cb);
+                            UniqueFunction<void(TimerPtr&)>&& cb);
     TimerPtr CreateTimer(
       std::chrono::steady_clock::time_point initial_expires_at,
-      std::chrono::nanoseconds interval, std::function<void(TimerPtr&)>&& cb);
+      std::chrono::nanoseconds interval, UniqueFunction<void(TimerPtr&)>&& cb);
 
     // Enable a timer created before.
     void EnableTimer(TimerPtr& timer);

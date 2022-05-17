@@ -2,6 +2,7 @@ include(GoogleTest)
 
 file(GLOB_RECURSE src_fiber ${PROJECT_SOURCE_DIR}/src/fiber *.cpp)
 list(FILTER src_fiber EXCLUDE REGEX "Test.cpp$")
+message("${src_fiber}")
 
 enable_language(ASM)
 set(src_fiber
@@ -74,3 +75,13 @@ target_link_libraries(WaitableTest
         )
 
 gtest_discover_tests(WaitableTest)
+
+add_executable(ConditionalVariableTest ConditionalVariableTest.cpp)
+target_include_directories(ConditionalVariableTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(ConditionalVariableTest
+        fiber
+        base
+        ${libcommon}
+        )
+
+gtest_discover_tests(ConditionalVariableTest)

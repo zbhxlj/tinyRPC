@@ -6,8 +6,10 @@
 #include <queue>
 
 #include "../../../glog/logging.h"
-#include "TimerWorker.h"
 #include "../../base/SpinLock.h"
+#include "../../base/Function.h"
+
+#include "TimerWorker.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -51,7 +53,7 @@ class SchedulingGroup {
 
   [[nodiscard]] TimerPtr CreateTimer(
       std::chrono::steady_clock::time_point expires_at,
-    std::function<void(TimerPtr& )>&& cb) {
+    UniqueFunction<void(TimerPtr& )>&& cb) {
     CHECK(timerWorker_);
     CHECK_EQ(Current(), this);
     return timerWorker_->CreateTimer(expires_at, std::move(cb));
@@ -60,7 +62,7 @@ class SchedulingGroup {
   // Periodic timer.
   [[nodiscard]] TimerPtr CreateTimer(
       std::chrono::steady_clock::time_point initial_expires_at,
-      std::chrono::nanoseconds interval, std::function<void(TimerPtr& )>&& cb) {
+      std::chrono::nanoseconds interval, UniqueFunction<void(TimerPtr& )>&& cb) {
     CHECK(timerWorker_);
     CHECK_EQ(Current(), this);
     return timerWorker_->CreateTimer(initial_expires_at, interval,
