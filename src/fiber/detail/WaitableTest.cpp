@@ -70,7 +70,7 @@ TEST(WaitableTest, WaitableTimer) {
     WaitableTimer wt(now + 1s);
     wt.wait();
     EXPECT_NEAR(1s / 1ms, 
-      (std::chrono::steady_clock::now() - now) / 1ms, 100);
+      (std::chrono::steady_clock::now() - now) / 1ms, 200);
   });
 }
 

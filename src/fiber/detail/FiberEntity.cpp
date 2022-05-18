@@ -111,6 +111,7 @@ FiberEntity* CreateFiberEntity(SchedulingGroup* scheduling_group,
 
   fiber->startProc_ = std::move(startProc);
   fiber->exitBarrier_ = std::move(barrier);
+  fiber->local_ = false;
 
   return fiber;
 }

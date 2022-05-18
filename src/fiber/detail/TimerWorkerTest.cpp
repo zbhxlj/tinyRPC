@@ -79,7 +79,7 @@ TEST(TimerWorker, SetTimerInTimerContext) {
 
 std::atomic<std::size_t> timer_set, timer_removed;
 
-TEST(TimerWorker, Torture) {
+TEST(TimerWorker, DISABLED_Torture) {
   constexpr auto N = 100'000;
   // If there are enough threads(may be > 4), we will core dump this test
   // due to invalid access when timerWorker try to access thread_local

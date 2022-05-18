@@ -37,11 +37,12 @@ public:
     ErasedPtr* GetFiberLocalStorage(std::size_t index) noexcept;
 
 public:    
-    FiberState state_;
+    FiberState state_ = FiberState::READY;
 
     // SchedulingGroup this fiber belongs to.
     SchedulingGroup* sg_{nullptr};
 
+    bool local_{false};
     void* stackSaveBuffer_{nullptr};
     std::size_t stackSize_;
 

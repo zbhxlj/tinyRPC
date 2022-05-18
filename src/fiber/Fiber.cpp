@@ -32,12 +32,13 @@ Fiber::~Fiber() {
   CHECK(!joinable()) << "You need to call either `join()` or `detach()` prior to destroy a fiber.";
 }
 
-Fiber::Fiber(UniqueFunction<void()>&& start) {
-  auto sg = NearestSchedulingGroup();
+Fiber::Fiber(const Attributes& attr, UniqueFunction<void()>&& start) {
+  auto sg = GetSchedulingGroupByID(attr.sg);
   CHECK(sg) << "No scheduling group is available?";
 
   // TODO: implement ExitBarrier
   auto fiberEntity = CreateFiberEntity(sg, std::move(start), std::make_shared<ExitBarrier>());
+  fiberEntity->local_ = attr.local;
   joinImpl_ = fiberEntity->exitBarrier_;
   sg->StartFiber(fiberEntity);
 }
@@ -82,6 +83,7 @@ void StartFiberFromPthread(UniqueFunction<void()>&& start_proc) {
 void StartFiberDetached(UniqueFunction<void()>&& start_proc) {
   auto sg = NearestSchedulingGroup();
   auto fiberEntity = CreateFiberEntity(sg, std::move(start_proc));
+  fiberEntity->local_ = false;
   
   CHECK(!fiberEntity->exitBarrier_);
 
