@@ -29,6 +29,8 @@ detail::TimerPtr SetTimer(std::chrono::nanoseconds interval,
 
 void KillTimer(detail::TimerPtr timer_id);
 
+// For internal use, mind that we don't start a fiber
+// to run timer callback.
 namespace internal{
 
 [[nodiscard]] detail::TimerPtr CreateTimer(

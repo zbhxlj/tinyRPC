@@ -1,10 +1,10 @@
 #include "../../include/gtest/gtest.h"
 #include "../../include/gmock/gmock.h"
+#include "../base/Random.h"
 
 #include "FiberLocal.h"
 #include "Testing.h"
 #include "ThisFiber.h"
-#include "../base/base.h"
 
 namespace tinyRPC::fiber{
 

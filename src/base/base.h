@@ -5,7 +5,6 @@
 #include <cstdint>
 namespace tinyRPC{
     void SetCurrentThreadName(const char* name);
-    std::uint64_t Random(std::uint64_t val);
 }
 
 #endif

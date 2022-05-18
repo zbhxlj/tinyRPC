@@ -8,8 +8,4 @@ namespace tinyRPC{
         pthread_setname_np(self, name);
     }
 
-    std::uint64_t Random(std::uint64_t num){
-        std::srand(time(NULL));
-        return rand() % num;
-    }
 }

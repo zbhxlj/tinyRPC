@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "../../include/gtest/gtest.h"
+#include "../base/Random.h"
 
-#include "../base/base.h"
 #include "Testing.h"
 #include "Fiber.h"
 #include "ThisFiber.h"
