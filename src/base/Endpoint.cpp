@@ -1,4 +1,4 @@
-#include "EndPoint.h"
+#include "Endpoint.h"
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>

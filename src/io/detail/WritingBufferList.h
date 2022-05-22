@@ -28,6 +28,7 @@ class WritingBufferList {
 //   FRIEND_TEST(WritingBufferList, Torture);
 
   struct Node {
+    Node(std::string buf, std::uintptr_t ctx): buffer(buf), ctx(ctx){}
     std::string buffer;
     std::uintptr_t ctx;
   };

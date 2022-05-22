@@ -66,7 +66,7 @@ ssize_t WritingBufferList::FlushTo(tinyRPC::AbstractStreamIo* io, std::size_t ma
 
 bool WritingBufferList::Append(std::string buffer, std::uintptr_t ctx){
     std::unique_lock _(lock_);
-    buffers_.emplace_back(buffer, ctx);
+    buffers_.emplace_back(new WritingBufferList::Node(buffer, ctx));
     return buffers_.size() == 1;
 }
 } // namespace tinyRPC::io::detail
