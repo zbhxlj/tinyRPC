@@ -1,9 +1,11 @@
 include(GoogleTest)
 
-file(GLOB_RECURSE src_base *.cpp)
+file(GLOB_RECURSE src_base *.cpp *.h *.cc)
 list(FILTER src_base EXCLUDE REGEX "Test.cpp$")
+message("${src_base}")
 
 add_library(base STATIC ${src_base})
+target_link_libraries(base ${libcommon})
 
 #SpinLockTest
 add_executable(SpinLockTest SpinLockTest.cpp)

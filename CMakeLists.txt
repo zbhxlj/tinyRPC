@@ -9,6 +9,7 @@ add_compile_options(-Wall -Werror -Wunused -Wno-sign-compare -g -O2)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 set(libcommon 
+        ${PROJECT_SOURCE_DIR}/lib/fmt/libfmt.a
         ${PROJECT_SOURCE_DIR}/lib/glog/libglog.a
         ${PROJECT_SOURCE_DIR}/lib/gflags/libgflags.a
         ${PROJECT_SOURCE_DIR}/lib/googletest/libgtest_main.a
