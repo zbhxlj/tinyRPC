@@ -1,8 +1,9 @@
 #include <thread>
-#include <latch>
+// #include <latch>
 
 #include "gtest/gtest.h"
 
+#include "Latch.h"
 #include "SpinLock.h"
 
 namespace tinyRPC{
@@ -15,7 +16,7 @@ namespace tinyRPC{
         constexpr std::uint64_t totalCounter = 100000;
 
         std::thread threads[10];
-        std::latch latch(10);
+        Latch latch(10);
 
         for(auto&& t : threads){
             t = std::thread([&latch, &counter, &spinLock](){

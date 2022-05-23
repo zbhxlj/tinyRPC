@@ -4,7 +4,9 @@
 #include <atomic>
 #include <thread>
 #include <vector>
-#include <latch>
+// #include <latch>
+
+#include "../../base/Latch.h"
 
 namespace tinyRPC {
 
@@ -30,7 +32,7 @@ class Watchdog {
 
  private:
   std::atomic<bool> exiting_{false};
-  std::latch latch_{1};  
+  tinyRPC::Latch latch_{1};  
   std::vector<EventLoop*> watched_;
   std::thread watcher_;
 };

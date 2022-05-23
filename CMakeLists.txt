@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(tinyRPC)
 
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Werror -Wunused -Wno-sign-compare -g -O2 -Wno-comment)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)

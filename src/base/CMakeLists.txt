@@ -10,7 +10,7 @@ target_link_libraries(base ${libcommon})
 #SpinLockTest
 add_executable(SpinLockTest SpinLockTest.cpp)
 target_include_directories(SpinLockTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(SpinLockTest ${libcommon})
+target_link_libraries(SpinLockTest ${libcommon} base)
 gtest_discover_tests(SpinLockTest)
 
 #ErasedPtrTest

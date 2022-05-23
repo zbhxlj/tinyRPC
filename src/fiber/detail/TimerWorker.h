@@ -10,10 +10,11 @@
 #include <queue>
 #include <thread>
 #include <condition_variable>
-#include <latch>
+// #include <latch>
 
 #include "../../base/SpinLock.h"
 #include "../../base/Function.h"
+#include "../../base/Latch.h"
 
 namespace tinyRPC::fiber::detail{
 
@@ -100,7 +101,7 @@ private:
     std::vector<ThreadLocalQueue*> localQueues_;
     std::chrono::steady_clock::duration nextExpireAt = std::chrono::steady_clock::duration::max();
     std::atomic<bool> stopped_ {false};
-    std::latch latch_;
+    tinyRPC::Latch latch_;
     std::thread worker_;
     // Sleep on this.
     std::mutex lock_;

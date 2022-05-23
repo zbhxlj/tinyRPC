@@ -3,12 +3,12 @@
 #include <syscall.h>
 #include <cstdint>
 #include <mutex>
+#include <climits>
 
 #include "SchedulingGroup.h"
 #include "FiberEntity.h"
 #include "../../base/ScopedDeferred.h"
 #include "../../../include/glog/logging.h"
-
 namespace tinyRPC::fiber::detail{
 
 thread_local SchedulingGroup* SchedulingGroup::current_{nullptr};

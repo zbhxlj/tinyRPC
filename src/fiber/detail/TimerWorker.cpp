@@ -54,8 +54,6 @@ TimerPtr TimerWorker::CreateTimer(
     std::chrono::steady_clock::time_point initial_expires_at,
     std::chrono::nanoseconds interval, UniqueFunction<void(TimerPtr&)>&& cb) {
   CHECK(cb) << "No callback for the timer?";
-  CHECK_GT(interval, static_cast<std::chrono::nanoseconds>(0ull)) <<
-              "`interval` must be greater than 0 for periodic timers.";
   if (std::chrono::steady_clock::now() > 
             initial_expires_at + static_cast<std::chrono::seconds>(10ull)) {
     LOG(ERROR) << "`initial_expires_at` was specified as long ago. Corrected to now.";
