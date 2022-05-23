@@ -106,7 +106,7 @@ class StreamConnection {
   //          in the future) at all. In this case the user may safely resend the
   //          `buffer` (presumably via a different connection) without worrying
   //          about multiple copied being sent.
-  virtual bool Write(std::string& buffer, std::uintptr_t ctx) = 0;
+  virtual bool Write(const std::string& buffer, std::uintptr_t ctx) = 0;
 
   // Restart reading data.
   //

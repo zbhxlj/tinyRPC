@@ -53,6 +53,7 @@ class  Descriptor
 
   enum class CleanupReason {
     None,  // Placeholder, not actually used.
+    HandshakeFailed,
     Disconnect,
     UserInitiated,
     Closing,
