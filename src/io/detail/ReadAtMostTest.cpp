@@ -3,11 +3,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <limits>
 #include <memory>
 #include <string>
 #include <thread>
 
-#include "gtest/gtest.h"
+#include "../../include/gtest/gtest.h"
 
 #include "../../base/Random.h"
 #include "../../base/Logging.h"
@@ -44,7 +45,7 @@ class ReadAtMostTest : public ::testing::Test {
 TEST_F(ReadAtMostTest, Drained) {
   ASSERT_EQ(ReadStatus::Drained,
             ReadAtMost(8, io_.get(), buffer_, &bytes_read_));
-  EXPECT_EQ("1234567", buffer_.c_str());
+  EXPECT_EQ(std::string("1234567"), buffer_);
   EXPECT_EQ(7, bytes_read_);
 }
 
@@ -52,21 +53,21 @@ TEST_F(ReadAtMostTest, Drained2) {
   buffer_ = "0000";
   ASSERT_EQ(ReadStatus::Drained,
             ReadAtMost(8, io_.get(), buffer_, &bytes_read_));
-  EXPECT_EQ("00001234567", buffer_.c_str());
+  EXPECT_EQ(std::string("00001234567"), buffer_);
   EXPECT_EQ(7, bytes_read_);
 }
 
 TEST_F(ReadAtMostTest, MaxBytesRead) {
   ASSERT_EQ(ReadStatus::MaxBytesRead,
             ReadAtMost(7, io_.get(), buffer_, &bytes_read_));
-  EXPECT_EQ("1234567", buffer_.c_str());
+  EXPECT_EQ(std::string("1234567"), buffer_);
   EXPECT_EQ(7, bytes_read_);
 }
 
 TEST_F(ReadAtMostTest, MaxBytesRead2) {
   ASSERT_EQ(ReadStatus::MaxBytesRead,
             ReadAtMost(5, io_.get(), buffer_, &bytes_read_));
-  EXPECT_EQ("12345", buffer_.c_str());
+  EXPECT_EQ(std::string("12345"), buffer_);
   EXPECT_EQ(5, bytes_read_);
 }
 
@@ -81,50 +82,51 @@ TEST_F(ReadAtMostTest, PeerClosing) {
   ASSERT_EQ(ReadStatus::PeerClosing,
             ReadAtMost(1, io_.get(), buffer_, &bytes_read_));
   EXPECT_EQ(0, bytes_read_);
-  EXPECT_EQ("1234567", buffer_.c_str());
+  EXPECT_EQ(std::string("1234567"), buffer_);
 }
 
-// TEST(ReadAtMost, LargeChunk) {
-//   // @sa: https://man7.org/linux/man-pages/man2/fcntl.2.html
-//   //
-//   // > Note that because of the way the pages of the pipe buffer are employed
-//   // > when data is written to the pipe, the number of bytes that can be written
-//   // > may be less than the nominal size, depending on the size of the writes.
-//   constexpr auto kMaxBytes = 1048576;  // @sa: `/proc/sys/fs/pipe-max-size`
+TEST(ReadAtMost, LargeChunk) {
+  // @sa: https://man7.org/linux/man-pages/man2/fcntl.2.html
+  //
+  // > Note that because of the way the pages of the pipe buffer are employed
+  // > when data is written to the pipe, the number of bytes that can be written
+  // > may be less than the nominal size, depending on the size of the writes.
+  constexpr auto kMaxBytes = 1048576;  // @sa: `/proc/sys/fs/pipe-max-size`
 
-//   int fd[2];  // read fd, write fd.
-//   FLARE_PCHECK(pipe(fd) == 0);
-//   FLARE_PCHECK(fcntl(fd[0], F_SETPIPE_SZ, kMaxBytes) == kMaxBytes);
-//   util::SetNonBlocking(fd[0]);
-//   util::SetNonBlocking(fd[1]);
-//   auto io = std::make_unique<SystemStreamIo>(fd[0]);
+  int fd[2];  // read fd, write fd.
+  FLARE_PCHECK(pipe(fd) == 0);
+  FLARE_PCHECK(fcntl(fd[0], F_SETPIPE_SZ, kMaxBytes) == kMaxBytes);
+  util::SetNonBlocking(fd[0]);
+  util::SetNonBlocking(fd[1]);
+  auto io = std::make_unique<SystemStreamIo>(fd[0]);
 
-//   std::string source;
-//   for (int i = 0; i != kMaxBytes; ++i) {
-//     source.push_back(Random<char>());
-//   }
+  std::srand(time(NULL));
+  std::string source;
+  for (int i = 0; i != kMaxBytes; ++i) {
+    source.push_back(rand() % 128);
+  }
 
-//   for (int i = 1; i < kMaxBytes; i = i * 3 / 2 + 17) {
-//     FLARE_LOG_INFO("Testing chunk of size {}.", i);
+  for (int i = 1; i < kMaxBytes; i = i * 3 / 2 + 17) {
+    FLARE_LOG_INFO("Testing chunk of size {}.", i);
 
-//     FLARE_PCHECK(write(fd[1], source.data(), i) == i);
+    FLARE_PCHECK(write(fd[1], source.data(), i) == i);
 
-//     NoncontiguousBuffer buffer;
-//     std::size_t bytes_read;
+    std::string buffer;
+    std::size_t bytes_read;
 
-//     if (Random() % 2 == 0) {
-//       ASSERT_EQ(ReadStatus::Drained,
-//                 ReadAtMost(i + 1, io.get(), &buffer, &bytes_read));
-//     } else {
-//       ASSERT_EQ(ReadStatus::MaxBytesRead,
-//                 ReadAtMost(i, io.get(), &buffer, &bytes_read));
-//     }
-//     EXPECT_EQ(i, bytes_read);
-//     // Not using `EXPECT_EQ` as diagnostics on error is potentially large, so we
-//     // want to bail out on error ASAP.
-//     ASSERT_EQ(FlattenSlow(buffer), source.substr(0, i));
-//   }
-// }
+    if (rand() % 2 == 0) {
+      ASSERT_EQ(ReadStatus::Drained,
+                ReadAtMost(i + 1, io.get(), buffer, &bytes_read));
+    } else {
+      ASSERT_EQ(ReadStatus::MaxBytesRead,
+                ReadAtMost(i, io.get(), buffer, &bytes_read));
+    }
+    EXPECT_EQ(i, bytes_read);
+    // Not using `EXPECT_EQ` as diagnostics on error is potentially large, so we
+    // want to bail out on error ASAP.
+    ASSERT_EQ(buffer, source.substr(0, i));
+  }
+}
 
 }  // namespace tinyRPC::io::detail
 

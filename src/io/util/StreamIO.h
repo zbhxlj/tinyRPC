@@ -7,6 +7,7 @@
 #include <string>
 
 #include "../detail/EintrSafe.h"
+#include "../../base/Logging.h"
 
 namespace tinyRPC {
 
@@ -18,7 +19,7 @@ class AbstractStreamIo {
 
   virtual HandshakingStatus Handshake() = 0;
 
-  virtual ssize_t Read(std::string& buf) = 0;
+  virtual ssize_t Read(char* buf, ssize_t len) = 0;
 
   // TODO: whether `const` ?
   virtual ssize_t Write(std::string& buf) = 0;
@@ -30,12 +31,12 @@ class SystemStreamIo : public AbstractStreamIo {
 
   HandshakingStatus Handshake() override { return HandshakingStatus::Success; }
 
-  ssize_t Read(std::string& buf) override {
-    return io::detail::EIntrSafeRead(fd_, const_cast<char*>(buf.c_str()), buf.capacity());
+  ssize_t Read(char* buf, ssize_t len) override {
+    return io::detail::EIntrSafeRead(fd_, buf, len);
   }
 
   ssize_t Write(std::string& buf) override {
-    return io::detail::EIntrSafeWrite(fd_, const_cast<char*>(buf.c_str()), buf.capacity());
+    return io::detail::EIntrSafeWrite(fd_, &buf[0], buf.capacity());
   }
 
   int GetFd() const noexcept { return fd_; }

@@ -6,23 +6,22 @@ namespace tinyRPC::io::detail{
 
 ssize_t ReadAtMostPartial(std::size_t max_bytes, AbstractStreamIo* io,
                           std::string& to, bool* short_read) {
-  std::string buf;
-  buf.reserve(max_bytes);
-  
-  auto result = io->Read(buf);
-  if (result <= 0) {
-    return result;
+  char buf[max_bytes];
+  memset(buf, 0, sizeof(buf));
+
+  auto readBytes = io->Read(buf, max_bytes);
+  if (readBytes <= 0) {
+    return readBytes;
   }
 
-  CHECK_LE(result, max_bytes);
-  *short_read = result != max_bytes;
+  CHECK_LE(readBytes, max_bytes);
+  *short_read = readBytes != max_bytes;
   
-  std::size_t bytes_left = result;
-  if(bytes_left){
-      to.append(buf);
+  if(readBytes){
+      to.append(buf, readBytes);
   }
 
-  return result;
+  return readBytes;
 }
 
 ReadStatus ReadAtMost(std::size_t max_bytes, AbstractStreamIo* io,
