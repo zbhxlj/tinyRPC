@@ -2,6 +2,7 @@
 #define _SRC_IO_STREAM_CONNECTION_H_
 
 #include <cinttypes>
+#include <memory>
 #include <string>
 
 namespace tinyRPC {
@@ -9,7 +10,7 @@ namespace tinyRPC {
 class StreamConnection;
 
 // This class handles I/O events.
-class StreamConnectionHandler {
+class StreamConnectionHandler: public std::enable_shared_from_this<StreamConnectionHandler> {
  public:
   virtual ~StreamConnectionHandler() = default;
 

@@ -115,7 +115,7 @@ TEST(WritingBufferList, ShortWrite) {
   close(fd[1]);
 }
 
-TEST(WritingBufferList, Torture) {
+TEST(DISABLED_WritingBufferList, Torture) {
   struct TestConfig {
     std::size_t loop;
     std::size_t buffer_size;

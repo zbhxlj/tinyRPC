@@ -30,3 +30,21 @@ target_include_directories(WritingBufferListTest PUBLIC ${PROJECT_SOURCE_DIR}/in
 target_link_libraries(WritingBufferListTest tinyRPC testing)
                 
 gtest_discover_tests(WritingBufferListTest)
+
+add_executable(AcceptorTest native/AcceptorTest.cpp)
+target_include_directories(AcceptorTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(AcceptorTest tinyRPC testing)
+                
+gtest_discover_tests(AcceptorTest)
+
+add_executable(StreamConnectionTest native/StreamConnectionTest.cpp)
+target_include_directories(StreamConnectionTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(StreamConnectionTest tinyRPC testing)
+                
+gtest_discover_tests(StreamConnectionTest)
+
+add_executable(SocketTest util/SocketTest.cpp)
+target_include_directories(SocketTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(SocketTest tinyRPC testing)
+                
+gtest_discover_tests(SocketTest)

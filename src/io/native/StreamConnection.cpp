@@ -5,6 +5,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "../../base/Likely.h"
 #include "../../base/Logging.h"
@@ -34,6 +35,7 @@ NativeStreamConnection::NativeStreamConnection(Handle fd, Options options)
     : Descriptor(std::move(fd), Event{}, "NativeStreamConnection"),
       options_(std::move(options)) {
   CHECK_NE(options.read_buffer_size, 0);
+  options_.read_buffer_size = std::min(options.read_buffer_size, static_cast<std::size_t>(1024 * 1024));
   options_.handler->OnAttach(this);
 
   if (!options_.stream_io) {

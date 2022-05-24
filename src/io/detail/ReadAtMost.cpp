@@ -6,8 +6,9 @@ namespace tinyRPC::io::detail{
 
 ssize_t ReadAtMostPartial(std::size_t max_bytes, AbstractStreamIo* io,
                           std::string& to, bool* short_read) {
-  char buf[max_bytes];
-  memset(buf, 0, sizeof(buf));
+  CHECK_LE(max_bytes, 1024 * 1024);
+  // No static array here, must be reentrant.
+  char* buf = new char[1024 * 1024];
 
   auto readBytes = io->Read(buf, max_bytes);
   if (readBytes <= 0) {
