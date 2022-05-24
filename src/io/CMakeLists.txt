@@ -18,3 +18,15 @@ target_link_libraries(ReadAtMostTest
         )
                 
 gtest_discover_tests(ReadAtMostTest)
+
+add_executable(WatchDogTest detail/WatchDogTest.cpp)
+target_include_directories(WatchDogTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(WatchDogTest tinyRPC testing)
+                
+gtest_discover_tests(WatchDogTest)
+
+add_executable(WritingBufferListTest detail/WritingBufferListTest.cpp)
+target_include_directories(WritingBufferListTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(WritingBufferListTest tinyRPC testing)
+                
+gtest_discover_tests(WritingBufferListTest)

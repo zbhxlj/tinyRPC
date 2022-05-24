@@ -2,8 +2,15 @@
 
 #include "WritingBufferList.h"
 
-
 namespace tinyRPC::io::detail{
+
+WritingBufferList::WritingBufferList() {}
+
+WritingBufferList::~WritingBufferList() {
+    for(auto&& node : buffers_){
+        delete node;
+    }
+}
 
 // Tremendous performance hurt.
 ssize_t WritingBufferList::FlushTo(tinyRPC::AbstractStreamIo* io, std::size_t max_bytes,
@@ -32,6 +39,7 @@ ssize_t WritingBufferList::FlushTo(tinyRPC::AbstractStreamIo* io, std::size_t ma
         iter++;
     }
 
+
     ssize_t rc = io->Write(gatheredBuffer);
     if (rc <= 0) {
         return rc;  // Nothing is really flushed then.
@@ -43,16 +51,17 @@ ssize_t WritingBufferList::FlushTo(tinyRPC::AbstractStreamIo* io, std::size_t ma
     std::size_t cnt = 0;
     iter = buffers_.begin();
 
-    while(cnt < flushing && iter != buffers_.end()){
+    while(cnt < rc && iter != buffers_.end()){
         auto&& s = (*iter)->buffer;
 
         std::size_t writeSize = s.size();
-        if(writeSize + flushing > max_bytes){
-            writeSize -= s.size() + flushing - max_bytes;
-            (*iter)->buffer = s.substr(max_bytes - flushing);
+        if(writeSize + cnt > rc){
+            writeSize -= rc - cnt;
+            (*iter)->buffer = s.substr(rc - cnt);
             iter++;
         }else{
             auto iter2 = iter++;
+            flushed_ctxs->push_back((*iter2)->ctx);
             buffers_.erase(iter2);
         }
         cnt += writeSize;

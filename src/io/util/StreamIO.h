@@ -36,7 +36,7 @@ class SystemStreamIo : public AbstractStreamIo {
   }
 
   ssize_t Write(std::string& buf) override {
-    return io::detail::EIntrSafeWrite(fd_, &buf[0], buf.capacity());
+    return io::detail::EIntrSafeWrite(fd_, &buf[0], buf.size());
   }
 
   int GetFd() const noexcept { return fd_; }

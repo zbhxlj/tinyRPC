@@ -133,7 +133,7 @@ void StartAllEventLoops();
 //
 // Passing `-1` or `0` to `GetGlobalEventLoop` is an error, as they're invalid
 // fd values.
-EventLoop* GetGlobalEventLoop(std::size_t scheduling_group, int fd = -2);
+EventLoop* GetGlobalEventLoop(std::size_t scheduling_group);
 
 // Wait until each event loop had executed user's task at least once.
 //

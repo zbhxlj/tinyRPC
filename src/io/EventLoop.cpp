@@ -295,10 +295,7 @@ void StartAllEventLoops() {
   watchdog.Start();
 }
 
-EventLoop* GetGlobalEventLoop(std::size_t scheduling_group, int fd) {
-  FLARE_CHECK(fd != 0 && fd != -1 && fd != -2,
-              "You're likely passing in a fd got from calling `Get()` on an "
-              "invalid `Handle`.");
+EventLoop* GetGlobalEventLoop(std::size_t scheduling_group) {
   FLARE_CHECK_LT(scheduling_group, event_loop_workers.size());
 
   // TODO(luobogao): Let's see if the hash works well.

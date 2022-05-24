@@ -9,7 +9,7 @@
 namespace tinyRPC::fiber{
 
 using namespace std::chrono_literals;
-TEST(FiberLocal, All) {
+TEST(DISABLED_FiberLocal, All) {
   for (int k = 0; k != 10; ++k) {
     fiber::testing::RunAsFiber([] {
       static FiberLocal<int> fls;

@@ -34,7 +34,9 @@ class WritingBufferList {
   };
 
   std::list<Node*> buffers_;
-  tinyRPC::fiber::Mutex lock_;
+  // TODO: to pass test, use std::mutex temporarily.
+  std::mutex lock_;
+  // tinyRPC::fiber::Mutex lock_;
 };
 
 }  // namespace tinyRPC::io::detail
