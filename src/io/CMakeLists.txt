@@ -48,3 +48,15 @@ target_include_directories(SocketTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(SocketTest tinyRPC testing)
                 
 gtest_discover_tests(SocketTest)
+
+add_executable(DescriptorTest DescriptorTest.cpp)
+target_include_directories(DescriptorTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(DescriptorTest tinyRPC testing)
+                
+gtest_discover_tests(DescriptorTest)
+
+add_executable(EventLoopTest EventLoopTest.cpp)
+target_include_directories(EventLoopTest PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(EventLoopTest tinyRPC testing)
+                
+gtest_discover_tests(EventLoopTest)

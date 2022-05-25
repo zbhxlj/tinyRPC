@@ -33,7 +33,7 @@ class  Descriptor
     return read_mostly_.ev;
   }
 
- protected:
+ public:
   // Returned by `OnReadable` / `OnWritable` to notify the framework what have
   // been done by the implementation, or what should be done by the framework.
   enum class EventAction {
