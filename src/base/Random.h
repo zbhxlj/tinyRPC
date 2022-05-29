@@ -12,6 +12,11 @@ T Random(T val){
     return rand() % val;
 }
 
+inline std::size_t Random(){
+    std::srand(time(NULL));
+    return rand();
+}
+
 } // namespace tinyRPC
 
 #endif
