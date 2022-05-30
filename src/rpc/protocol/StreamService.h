@@ -111,15 +111,6 @@ class StreamService {
     Unexpected
   };
 
-  // Get UUID of the implementation.
-  //
-  // Returning duplicate from different implementation leads to undefined
-  // behavior.
-  //
-  // NOTICE: If there turns out to be several classes that declare this method,
-  // we can use a dedicated `Identifiable` interface instead.
-  // TODO: Uuid
-  virtual const experimental::Uuid& GetUuid() const noexcept = 0;
 
   // Inspects `message` and if the implementation recognizes the message,
   // returns some basic information needed by the framework. The framework

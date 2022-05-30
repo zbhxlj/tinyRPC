@@ -4,9 +4,9 @@
 #include <chrono>
 #include <string>
 
-#include "flare/base/dependency_registry.h"
-#include "flare/base/net/endpoint.h"
-#include "flare/rpc/load_balancer/load_balancer.h"
+#include "../../base/DependencyRegistry.h"
+#include "../../base/Endpoint.h"
+#include "../load_balancer/LoadBalancer.h"
 
 namespace tinyRPC {
 
@@ -43,11 +43,6 @@ class MessageDispatcher {
 
   using Status = LoadBalancer::Status;
 
-  // For each *successful* call to `GetPeer`, there is *exactly* one
-  // corresponding call to `Report`.
-  virtual void Report(const Endpoint& addr, Status status,
-                      std::chrono::nanoseconds time_cost,
-                      std::uintptr_t ctx) = 0;
 };
 
 FLARE_DECLARE_CLASS_DEPENDENCY_REGISTRY(message_dispatcher_registry,

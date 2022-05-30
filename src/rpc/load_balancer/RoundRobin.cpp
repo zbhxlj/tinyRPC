@@ -10,9 +10,7 @@ FLARE_RPC_REGISTER_LOAD_BALANCER("rr", RoundRobin);
 RoundRobin::~RoundRobin() {}
 
 void RoundRobin::SetPeers(std::vector<Endpoint> addresses) {
-  auto new_peers = std::make_shared<Peers>();
-  new_peers->peers = std::move(addresses);
-  endpoints_.reset(new_peers);
+  endpoints_ -> peers = std::move(addresses);
 }
 
 bool RoundRobin::GetPeer(std::uint64_t key, Endpoint* addr,

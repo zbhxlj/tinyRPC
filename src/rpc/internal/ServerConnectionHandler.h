@@ -12,7 +12,7 @@ namespace tinyRPC::rpc::detail {
 
 // Base of connection handlers used by `Server`.
 class ServerConnectionHandler : public StreamConnectionHandler {
-  static constexpr std::chrono::nanoseconds kLastEventTimestampUpdateInterval =
+  static constexpr auto kLastEventTimestampUpdateInterval =
       std::chrono::seconds(1);
 
  public:
@@ -23,7 +23,7 @@ class ServerConnectionHandler : public StreamConnectionHandler {
   std::chrono::steady_clock::time_point GetCoarseLastEventTimestamp()
       const noexcept {
     return std::chrono::steady_clock::time_point{
-        next_update_ - kLastEventTimestampUpdateInterval};
+        next_update_.load() - kLastEventTimestampUpdateInterval};
   }
 
  protected:
@@ -32,7 +32,7 @@ class ServerConnectionHandler : public StreamConnectionHandler {
 
     // We only write to `next_update_` after sufficient long period has passed
     // so as not to cause too many cache coherency traffic.
-    if (FLARE_UNLIKELY(next_update_ < now)) {
+    if (FLARE_UNLIKELY(next_update_.load() < now)) {
       next_update_.store(now + kLastEventTimestampUpdateInterval);
     }
   }

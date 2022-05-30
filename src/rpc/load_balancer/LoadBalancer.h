@@ -46,7 +46,7 @@ FLARE_DECLARE_CLASS_DEPENDENCY_REGISTRY(load_balancer_registry, LoadBalancer);
 }  // namespace tinyRPC
 
 #define FLARE_RPC_REGISTER_LOAD_BALANCER(Name, Implementation)         \
-  FLARE_REGISTER_CLASS_DEPENDENCY(flare::load_balancer_registry, Name, \
+  FLARE_REGISTER_CLASS_DEPENDENCY(tinyRPC::load_balancer_registry, Name, \
                                   Implementation);
 
 #endif  

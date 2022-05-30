@@ -135,8 +135,7 @@ class RpcChannel : public google::protobuf::RpcChannel {
 
  private:
   rpc::internal::StreamCallGateHandle GetFastCallGate(const Endpoint& ep);
-  rpc::internal::StreamCallGateHandle GetStreamCallGate(const Endpoint& ep);
-  RefPtr<rpc::internal::StreamCallGate> CreateCallGate(const Endpoint& ep);
+  std::shared_ptr<rpc::internal::StreamCallGate> CreateCallGate(const Endpoint& ep);
 
  private:
   // To avoid bring in too many headers, we define our members inside `Impl`.

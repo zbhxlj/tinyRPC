@@ -69,13 +69,13 @@ constexpr TypeIndex GetTypeIndex() {
   return TypeIndex(&detail::kTypeIndexEntity<T>);
 }
 
-}  // namespace flare
+}  // namespace tinyRPC
 
 namespace std {
 
 template <>
-struct hash<flare::TypeIndex> {
-  size_t operator()(const flare::TypeIndex& type) const noexcept {
+struct hash<tinyRPC::TypeIndex> {
+  size_t operator()(const tinyRPC::TypeIndex& type) const noexcept {
     return std::hash<const void*>{}(type.entity_);
   }
 };

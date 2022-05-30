@@ -153,19 +153,18 @@ bool StreamCallGate::InitializeConnection(const Endpoint& ep) {
 
   // Initialize connection.
   NativeStreamConnection::Options opts;
-  opts.handler = MaybeOwning(non_owning, static_cast<StreamConnectionHandler*>(this));
   opts.read_buffer_size = options_.maximum_packet_size;
   conn_ =
       std::make_shared<NativeStreamConnection>(std::move(fd), std::move(opts));
 
   // Add the connection to event loop.
   event_loop_ =
-      GetGlobalEventLoop(fiber::GetCurrentSchedulingGroupIndex(), conn_->fd());
-  event_loop_->AttachDescriptor(conn_.Get(), false);
+      GetGlobalEventLoop(fiber::GetCurrentSchedulingGroupIndex());
+  event_loop_->AttachDescriptor(conn_, false);
 
   // `conn_`'s callbacks may access `conn_` itself, so we must delay enabling
   // the descriptor until `conn_` is also initialized.
-  event_loop_->EnableDescriptor(conn_.Get());
+  event_loop_->EnableDescriptor(conn_.get());
 
   conn_->StartHandshaking();
 
@@ -181,7 +180,7 @@ bool StreamCallGate::WriteOut(std::string& buffer, std::uintptr_t ctx) {
 template <class F>
 void StreamCallGate::AllocateRpcContextFastCall(std::uint32_t correlation_id,
                                                 F&& init) {
-  auto ptr = new FastCallContext;
+  auto ptr = std::make_shared<FastCallContext>();
   std::forward<F>(init)(&*ptr);
 
   correlation_map_->Insert(
@@ -281,9 +280,7 @@ StreamConnectionHandler::DataConsumptionStatus StreamCallGate::OnDataArrival(
     // We might have to refactor timer's interface to resolve this.
     if (auto ctx = TryReclaimRpcContextFastCall(correlation_id)) {
       // It's a fast call then.
-      if (FLARE_UNLIKELY(!options_.protocol->GetCharacteristics()
-                              .ignore_message_type_for_client_side_streaming &&
-                         m->GetType() != Message::Type::Single)) {
+      if (FLARE_UNLIKELY(m->GetType() != Message::Type::Single)) {
         FLARE_LOG_WARNING(
             "Message #{} is marked as part of a stream, but we're expecting a "
             "normal RPC response.",

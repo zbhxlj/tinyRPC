@@ -25,12 +25,12 @@
 #include "../../../fiber/Latch.h"
 #include "../../internal/CorrelationID.h"
 #include "../../internal/StreamCallGate.h"
-#include "flare/rpc/message_dispatcher_factory.h"
-#include "flare/rpc/protocol/protobuf/message.h"
-#include "flare/rpc/protocol/protobuf/rpc_client_controller.h"
-#include "flare/rpc/protocol/protobuf/rpc_meta.pb.h"
-#include "flare/rpc/protocol/protobuf/rpc_options.h"
-#include "flare/rpc/protocol/protobuf/service_method_locator.h"
+#include "../../MessageDispatcherFactory.h"
+#include "CallContext.h"
+#include "Message.h"
+#include "rpcControllerClient.h"
+#include "rpc_meta.pb.h"
+#include "ServiceMethodLocator.h"
 
 DEFINE_int32(flare_rpc_channel_max_packet_size, 4 * 1024 * 1024,
              "Default maximum packet size of `RpcChannel`.");
@@ -46,39 +46,29 @@ namespace {
 
  struct FastCallContext {
   std::uintptr_t nslb_ctx{};
-  PooledPtr<protobuf::ProactiveCallContext> call_ctx;
+  std::shared_ptr<protobuf::ProactiveCallContext> call_ctx;
   rpc::internal::StreamCallGateHandle call_gate_handle;
-  tracing::QuickerSpan tracing_span;
   bool multiplexable;
 };
 
-protobuf::detail::MockChannel* mock_channel;
+// TODO:
+// protobuf::detail::MockChannel* mock_channel;
 
 bool IsMockAddress(const std::string& address) {
   return StartsWith(address, "mock://");
 }
 
-std::pair<AsyncStreamReader<std::unique_ptr<Message>>,
-          AsyncStreamWriter<std::unique_ptr<Message>>>
-GetErrorStreams() {
-  using E = std::unique_ptr<Message>;
-  return std::pair(
-      AsyncStreamReader<E>(
-          MakeRefCounted<rpc::detail::ErrorStreamReaderProvider<E>>()),
-      AsyncStreamWriter<E>(
-          MakeRefCounted<rpc::detail::ErrorStreamWriterProvider<E>>()));
-}
 
 void EnsureBytesOfInputTypeInDebugMode(
     const google::protobuf::MethodDescriptor* method,
-    const NoncontiguousBuffer& buffer) {
+    const std::string& buffer) {
 #ifndef NDEBUG
   // Being slow does not matter as it's only compiled in debug builds.
   std::unique_ptr<google::protobuf::Message> checker{
       google::protobuf::MessageFactory::generated_factory()
           ->GetPrototype(method->input_type())
           ->New()};
-  FLARE_DCHECK(checker->ParseFromString(FlattenSlow(buffer)),
+  FLARE_DCHECK(checker->ParseFromString(buffer),
                "Byte stream you're providing is not a valid binary "
                "representation of message [{}].",
                checker->GetDescriptor()->full_name());
@@ -139,7 +129,7 @@ std::unique_ptr<MessageDispatcher> NewMessageDispatcherFromName(
 // random number for NSLB either, so we use a thread-local RR ID for default
 // NSLB key.
 std::uint64_t GetNextPseudoRandomKey() {
-  FLARE_INTERNAL_TLS_MODEL thread_local std::uint64_t index = Random();
+  thread_local std::uint64_t index = Random();
   return index++;
 }
 
@@ -857,71 +847,21 @@ rpc::internal::StreamCallGateHandle RpcChannel::GetFastCallGate(
     return impl_->call_gate_pool->GetOrCreateExclusive(
         ep, [&] { return CreateCallGate(ep); });
   }
-}
 
-rpc::internal::StreamCallGateHandle RpcChannel::GetStreamCallGate(
+
+std::shared_ptr<rpc::internal::StreamCallGate> RpcChannel::CreateCallGate(
     const Endpoint& ep) {
-  // We always use dedicated connection for streaming RPC to avoid HOL blocking.
-
-  // FIXME: Even if we tested `Healthy()` after `GetOrCreate`, there's still a
-  // time window between we test it and we use it, we'd better fix this in
-  // `Channel` by retry on write failure. (When `Write()` returns `false`, the
-  // message is not sent, therefore it can be safely retried.)
-  //
-  // But what about streaming calls?
-  while (true) {
-    // We unconditionally use dedicated connection for stream calls if
-    // `flare_rpc_streaming_rpc_dedicated_connection` is not set. Overhead of
-    // establishing connection should be eligible for stream calls (if it
-    // streams a lot.)
-    //
-    // OTOH, had we used exclusive connection here, we need to balancing
-    // connections between fast calls and stream calls, which is rather nasty.
-    auto rc = impl_->call_gate_pool->GetOrCreateDedicated(
-        [&] { return CreateCallGate(ep); });
-    if (!rc->Healthy()) {
-      rc.Close();
-      continue;
-    }
-    return rc;
-  }
-}
-
-RefPtr<rpc::internal::StreamCallGate> RpcChannel::CreateCallGate(
-    const Endpoint& ep) {
-  auto gate = MakeRefCounted<rpc::internal::StreamCallGate>();
+  auto gate = std::make_shared<rpc::internal::StreamCallGate>();
   StreamCallGate::Options opts;
   opts.protocol = impl_->protocol_factory();
   opts.maximum_packet_size = options_.maximum_packet_size;
   gate->Open(ep, std::move(opts));
   if (!gate->Healthy()) {
-    FLARE_LOG_WARNING_EVERY_SECOND("Failed to open new call gate to [{}].",
+    FLARE_LOG_WARNING("Failed to open new call gate to [{}].",
                                    ep.ToString());
     // Fall-through. We don't want to handle failure in any special way.
   }
   return gate;
 }
-
-}  // namespace flare
-
-namespace flare {
-
-template <>
-struct PoolTraits<FastCallContext> {
-  static constexpr auto kType = PoolType::MemoryNodeShared;
-  static constexpr auto kLowWaterMark = 8192;
-  static constexpr auto kHighWaterMark =
-      std::numeric_limits<std::size_t>::max();
-  static constexpr auto kMaxIdle = std::chrono::seconds(10);
-  static constexpr auto kMinimumThreadCacheSize = 1024;
-  static constexpr auto kTransferBatchSize = 1024;
-
-  static void OnPut(FastCallContext* ptr) {
-    FLARE_CHECK_EQ(ptr->nslb_ctx, 0);
-    ptr->call_ctx = nullptr;
-    ptr->call_gate_handle.Close();
-    FLARE_CHECK(!ptr->tracing_span.Tracing());
-  }
-};
 
 }  // namespace tinyRPC

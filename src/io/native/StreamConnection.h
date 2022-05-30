@@ -8,6 +8,7 @@
 #include "../detail/WritingBufferList.h"
 #include "../StreamConnection.h"
 #include "../util/StreamIO.h"
+#include "../../base/MaybeOwning.h"
 
 namespace tinyRPC {
 
@@ -17,7 +18,7 @@ class NativeStreamConnection final : public Descriptor,
  public:
   struct Options {
     // Handler for consuming data and accepting several callbacks.
-    std::shared_ptr<StreamConnectionHandler> handler;
+    MaybeOwning<StreamConnectionHandler> handler;
 
     std::shared_ptr<AbstractStreamIo> stream_io;
 

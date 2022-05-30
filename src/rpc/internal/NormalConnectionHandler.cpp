@@ -89,7 +89,7 @@ NormalConnectionHandler::ProcessOnePacket(std::string& buffer,
   // fiber.
   auto rc = TryCutMessage(buffer, &msg, &protocol);
   if (rc == ProcessingStatus::Error) {
-    FLARE_LOG_ERROR_EVERY_SECOND("Unrecognized packet from [{}]. ",
+    FLARE_LOG_ERROR("Unrecognized packet from [{}]. ",
                                  ctx_->remote_peer.ToString());
     return ProcessingStatus::Error;
   } else if (rc == ProcessingStatus::Saturated) {
@@ -133,8 +133,8 @@ NormalConnectionHandler::ProcessOnePacket(std::string& buffer,
         OnCallCompletion();
       });
     }
-    return ProcessingStatus::Success;
   }
+    return ProcessingStatus::Success;
 }
 
 StreamProtocol::MessageCutStatus
@@ -213,8 +213,7 @@ NormalConnectionHandler::TryCutMessage(std::string& buffer,
 
 std::unique_ptr<Controller> NormalConnectionHandler::NewController(
     const Message& message, StreamProtocol* protocol) const {
-  return protocol->GetControllerFactory()->Create(message.GetType() !=
-                                                  Message::Type::Single);
+  return protocol->GetControllerFactory()->Create();
 }
 
 void NormalConnectionHandler::WriteOverloaded(const Message& corresponding_req,
@@ -284,7 +283,7 @@ void NormalConnectionHandler::ServiceFastCall(
       FindAndCacheMessageHandler(*msg, *controller, &inspection_result);
   if (FLARE_UNLIKELY(!handler)) {  // No one is interested in this message. (But
                                    // why would any protocol produced it then?)
-    FLARE_LOG_ERROR_EVERY_SECOND(
+    FLARE_LOG_ERROR(
         "Received a message of type [{}] from [{}] which is not interested by "
         "any service. The message was successfully parsed by protocol [{}].",
         GetTypeName(*msg), ctx_->remote_peer.ToString(),
@@ -337,7 +336,7 @@ void NormalConnectionHandler::ServiceOverloaded(std::unique_ptr<Message> msg,
 inline StreamService* NormalConnectionHandler::FindAndCacheMessageHandler(
     const Message& message, const Controller& controller,
     StreamService::InspectionResult* inspection_result) {
-  auto last = last_service_;
+  auto last = last_service_.load();
   if (FLARE_LIKELY(last->Inspect(message, controller, inspection_result))) {
     return last;
   }

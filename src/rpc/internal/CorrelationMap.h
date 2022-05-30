@@ -43,8 +43,8 @@ template <class T>
 CorrelationMap<T>* GetCorrelationMapFor(std::size_t scheduling_group_id) {
   static std::vector<CorrelationMap<T>> maps(
       fiber::GetSchedulingGroupCount());
-  FLARE_CHECK_LT(scheduling_group_id, maps->size());
-  return &(*maps)[scheduling_group_id];
+  FLARE_CHECK_LT(scheduling_group_id, maps.size());
+  return &(maps)[scheduling_group_id];
 }
 
 }  // namespace tinyRPC::rpc::internal

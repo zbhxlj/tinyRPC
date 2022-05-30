@@ -12,11 +12,11 @@
 
 #include "../../../base/Callback.h"
 #include "../../../base/String.h"
-#include "flare/rpc/protocol/protobuf/call_context.h"
-#include "flare/rpc/protocol/protobuf/rpc_server_controller.h"
-#include "flare/rpc/protocol/protobuf/service_method_locator.h"
-#include "flare/rpc/protocol/stream_protocol.h"
-#include "flare/rpc/rpc_options.pb.h"
+#include "CallContext.h"
+#include "rpcControllerServer.h"
+#include "ServiceMethodLocator.h"
+#include "../StreamProtocol.h"
+#include "../../rpc_options.pb.h"
 
 using namespace std::literals;
 
@@ -118,12 +118,6 @@ void Service::AddService(MaybeOwning<google::protobuf::Service> impl) {
       services_.back()->GetDescriptor());
   service_descs_.push_back(services_.back()->GetDescriptor());
   registered_services_.insert(services_.back()->GetDescriptor()->full_name());
-}
-
-const experimental::Uuid& Service::GetUuid() const noexcept {
-  static constexpr experimental::Uuid kUuid(
-      "7D3B4ED4-D35E-46E0-87BD-2A03915D1760");
-  return kUuid;
 }
 
 bool Service::Inspect(const Message& message, const Controller& controller,

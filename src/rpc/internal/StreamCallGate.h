@@ -32,7 +32,7 @@ namespace tinyRPC::rpc::internal {
 // This is generally used by `XxxChannel` (via `StreamCallGatePool`).
 //
 // Thread-safe.
-class StreamCallGate : private StreamConnectionHandler {
+class StreamCallGate : public StreamConnectionHandler {
  public:
   using MessagePtr = std::unique_ptr<Message>;
 

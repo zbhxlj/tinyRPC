@@ -243,7 +243,7 @@ class ClassRegistry {
 
   // Only usable before `main` is called.
   void Register(const std::string& name, Factory factory) {
-    FLARE_CHECK(!factories_.contains(name),
+    FLARE_CHECK(factories_.find(name) == factories_.end(), 
                 "Double registration of class dependency [{}].", name);
     factories_[name] = std::make_unique<Factory>(std::move(factory));
   }
@@ -294,7 +294,7 @@ class ObjectRegistry {
 
   void Register(const std::string& name,
                 UniqueFunction<MaybeOwning<Interface>()> initializer) {
-    FLARE_CHECK(!objects_.contains(name),
+    FLARE_CHECK(objects_.find(name) == objects_.end(),
                 "Double registration of object dependency [{}].", name);
     objects_[name] = std::make_unique<LazilyInstantiatedObject>();
     objects_[name]->initializer = std::move(initializer);

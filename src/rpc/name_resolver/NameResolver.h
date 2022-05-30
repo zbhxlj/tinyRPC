@@ -71,7 +71,7 @@ FLARE_DECLARE_OBJECT_DEPENDENCY_REGISTRY(name_resolver_registry, NameResolver);
 }  // namespace tinyRPC
 
 #define FLARE_RPC_REGISTER_NAME_RESOLVER(Name, Implementation)               \
-  FLARE_REGISTER_OBJECT_DEPENDENCY(flare::name_resolver_registry, Name, [] { \
+  FLARE_REGISTER_OBJECT_DEPENDENCY(tinyRPC::name_resolver_registry, Name, [] { \
     return std::make_unique<Implementation>();                               \
   })
 

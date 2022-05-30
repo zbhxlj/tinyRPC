@@ -18,6 +18,7 @@
 #include "../util/Socket.h"
 #include "../../testing/Endpoint.h"
 #include "../../testing/main.h"
+#include "../../base/MaybeOwning.h"
 
 using namespace std::literals;
 
@@ -197,7 +198,7 @@ TEST_F(NativeStreamConnectionTest, EchoWithHeavilyFragmentedBuffer) {
   io::util::StartConnect(fd.Get(), addr_);
   NativeStreamConnection::Options opts;
   opts.handler =
-      std::make_shared<ConnectionHandler>("", [&](std::string& buffer) {
+      std::make_unique<ConnectionHandler>("", [&](std::string& buffer) {
         bytes_received += buffer.size();
         received += buffer;
         buffer.clear();
@@ -220,9 +221,9 @@ TEST_F(NativeStreamConnectionTest, EchoWithHeavilyFragmentedBuffer) {
 // TODO: Why this will close?
 TEST_F(NativeStreamConnectionTest, RemoteClose) {
   accept_conns = false;
+  ClosedConnectionHandler cch;
   NativeStreamConnection::Options opts;
-  auto cch = std::make_shared<ClosedConnectionHandler>();
-  opts.handler = cch;
+  opts.handler = MaybeOwning(non_owning, &cch);
   opts.read_buffer_size = 111111;
   auto fd = io::util::CreateStreamSocket(addr_.Get()->sa_family);
   io::util::SetNonBlocking(fd.Get());
@@ -233,15 +234,15 @@ TEST_F(NativeStreamConnectionTest, RemoteClose) {
   GetGlobalEventLoop(0)->AttachDescriptor(sc);
   sc->StartHandshaking();
   std::this_thread::sleep_for(100ms);
-  EXPECT_EQ(1, closed);
+  EXPECT_EQ(1, closed.load());
   sc->Stop();
   sc->Join();
 }
 
 TEST(NativeStreamConnection, ConnectionFailure) {
+  ErrorConnectionHandler ech;
   NativeStreamConnection::Options opts;
-  auto ech = std::make_shared<ErrorConnectionHandler>();
-  opts.handler = ech;
+  opts.handler = MaybeOwning(non_owning, &ech);
   opts.read_buffer_size = 111111;
   auto fd = io::util::CreateStreamSocket(AF_INET);
   // Hopefully no one is listening there.
@@ -254,7 +255,7 @@ TEST(NativeStreamConnection, ConnectionFailure) {
   GetGlobalEventLoop(0)->AttachDescriptor(sc);
   sc->StartHandshaking();
   std::this_thread::sleep_for(100ms);
-  ASSERT_EQ(1, err);
+  ASSERT_EQ(1, err.load());
   sc->Stop();
   sc->Join();
 }

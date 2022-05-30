@@ -61,7 +61,7 @@ void NameResolverUpdater::WorkProc() {
     }
     std::unique_lock lk(updater_mutex_);
     cond_.wait_for(lk, 1s,
-                   [this] { return stopped_; });
+                   [this] { return stopped_.load(); });
   }
 }
 
