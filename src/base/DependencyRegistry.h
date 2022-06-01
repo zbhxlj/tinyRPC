@@ -162,7 +162,7 @@
     auto registry =                                                           \
         ::tinyRPC::internal::LazyInit<                                          \
             ::tinyRPC::NeverDestroyed<std::decay_t<decltype(Registry)>>>()      \
-            ->Get();                                                          \
+            ->Get();            \
     ::tinyRPC::detail::dependency_registry::AddToRegistry(registry, ObjectName, \
                                                         PointerOrFactory);    \
   }
@@ -258,8 +258,8 @@ class ObjectRegistry {
  public:
   // Get object with the specified name.
   Interface* TryGet(std::string_view name) const {
-    auto ptr = objects_.TryGet(name);
-    if (ptr) {
+    if(objects_.find(name) != objects_.end()){
+      auto ptr = &objects_.at(name);
       auto&& e = **ptr;
       std::call_once(e.flag, [&] { e.object = e.initializer(); });
       return e.object.Get();
@@ -296,6 +296,7 @@ class ObjectRegistry {
                 UniqueFunction<MaybeOwning<Interface>()> initializer) {
     FLARE_CHECK(objects_.find(name) == objects_.end(),
                 "Double registration of object dependency [{}].", name);
+    FLARE_LOG_INFO("Register [{}].", name);
     objects_[name] = std::make_unique<LazilyInstantiatedObject>();
     objects_[name]->initializer = std::move(initializer);
   }
@@ -307,7 +308,7 @@ class ObjectRegistry {
     UniqueFunction<MaybeOwning<Interface>()> initializer;
   };
 
-  std::unordered_map<std::string, std::unique_ptr<LazilyInstantiatedObject>>
+  std::unordered_map<std::string_view, std::unique_ptr<LazilyInstantiatedObject>>
       objects_;
 };
 
