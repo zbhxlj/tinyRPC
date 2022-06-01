@@ -125,6 +125,7 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
 
   std::vector<const google::protobuf::ServiceDescriptor*> GetAllServices()
       const;
+  ServiceMethodLocator();
 
  private:
   template <class T>
@@ -133,7 +134,6 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
     std::unordered_map<std::string, MethodKey<T>> name_key_map;
   };
 
-  ServiceMethodLocator();
 
   template <class T>
   void UnsafeTryInitializeControlBlock() {

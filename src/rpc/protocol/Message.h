@@ -64,8 +64,7 @@ class MessageFactory {
   // gracefully (in most case this leads to a similar situation as "RPC
   // timeout".).
   virtual std::unique_ptr<Message> Create(Type type,
-                                          std::uint64_t correlation_id,
-                                          bool stream) const = 0;
+                                          std::uint64_t correlation_id) const = 0;
 
   // A predefined factory that always returns `nullptr`.
   static const MessageFactory* null_factory;

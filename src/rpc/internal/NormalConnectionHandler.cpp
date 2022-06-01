@@ -219,10 +219,9 @@ std::unique_ptr<Controller> NormalConnectionHandler::NewController(
 void NormalConnectionHandler::WriteOverloaded(const Message& corresponding_req,
                                               StreamProtocol* protocol,
                                               Controller* controller) {
-  auto stream = corresponding_req.GetType() != Message::Type::Single;
   auto factory = protocol->GetMessageFactory();
   auto msg = factory->Create(MessageFactory::Type::Overloaded,
-                             corresponding_req.GetCorrelationId(), stream);
+                             corresponding_req.GetCorrelationId());
   if (msg) {  // Note that `MessageFactory::Create` may return `nullptr`.
     WriteMessage(*msg, protocol, controller, kFastCallReservedContextId);
   }

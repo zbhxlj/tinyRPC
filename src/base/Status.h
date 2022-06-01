@@ -15,7 +15,7 @@ namespace detail {}  // namespace detail
 class Status {
  public:
   Status() noexcept = default;
-  explicit Status(int status, std::string desc);
+  explicit Status(int status, std::string desc = "");
 
   // If an enum type is inherited from `int` (which is the default), we allow
   // constructing `Status` from that type without further casting.
@@ -24,7 +24,7 @@ class Status {
   // `T` is not a successful status, you need to take special care when using
   // it.
   template <class T>
-  explicit Status(T status, std::string desc)
+  explicit Status(T status, std::string desc = "")
       : Status(static_cast<int>(status), desc) {}
 
   // Test if this object represents a successful status.

@@ -188,8 +188,8 @@ class ClassRegistry {
   //
   // An empty factory is returned if no class with the requested name is found.
   Factory TryGetFactory(std::string_view name) const noexcept {
-    auto ptr = factories_.TryGet(name);
-    if (ptr) {
+    if(factories_.find(name) != factories_.end()){
+      auto ptr = &factories_.at(name);
       // We don't support deregistration, therefore holding a pointer to the
       // factory should be safe.
       return [ptr = ptr->get()]<class... Args>(Args&&... args) {
@@ -215,8 +215,8 @@ class ClassRegistry {
   // `nullptr` is returned if the name given is not recognized.
   std::unique_ptr<Interface> TryNew(std::string_view name,
                                     FactoryArgs... args) const {
-    auto ptr = factories_.TryGet(name);
-    if (ptr) {
+    if(factories_.find(name) != factories_.end()){
+      auto ptr =  &factories_.at(name);
       return (**ptr)(std::forward<FactoryArgs>(args)...);
     }
     return nullptr;
@@ -249,7 +249,7 @@ class ClassRegistry {
   }
 
  private:
-  std::unordered_map<std::string, std::unique_ptr<Factory>> factories_;
+  std::unordered_map<std::string_view, std::unique_ptr<Factory>> factories_;
 };
 
 // Registry holding different objects implementing the same interface.

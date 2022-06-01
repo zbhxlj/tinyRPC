@@ -1,21 +1,20 @@
 #ifndef _SRC_BASE_ENDIAN_H_
 #define _SRC_BASE_ENDIAN_H_
 
-#ifdef _MSC_VER
-#include <stdlib.h>  // `_byteswap_*`
-#endif
-
 #include <cstddef>
 #include <cstdint>
 
-// Per [spec](https://en.cppreference.com/w/cpp/types/endian) `std::endian` is
-// defined in `<bit>`, but GCC 8.2 does not have this header yet. (Neither does
-// MSVC 16.3)
-#if __has_include(<bit>)
-#include <bit>
-#else
-#include <type_traits>  // `std::endian` is here in earlier compilers.
-#endif
+#include <bit>  
+
+namespace std{
+  enum class endian
+  {
+    little = __ORDER_LITTLE_ENDIAN__,
+    big    = __ORDER_BIG_ENDIAN__,
+    native = __BYTE_ORDER__
+  };
+
+}
 
 namespace tinyRPC {
 

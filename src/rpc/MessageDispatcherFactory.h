@@ -36,7 +36,7 @@ std::unique_ptr<MessageDispatcher> MakeMessageDispatcher(
 // This method may only be called upon startup. (c.f. `FLARE_ON_INIT`)
 void RegisterMessageDispatcherFactoryFor(
     const std::string& subsys, const std::string& scheme, int priority,
-    Function<std::unique_ptr<MessageDispatcher>(std::string_view address)>
+    UniqueFunction<std::unique_ptr<MessageDispatcher>(std::string_view address)>
         factory);
 
 // Register a catch-all factory for a given `subsys`. If no factory more
@@ -49,7 +49,7 @@ void RegisterMessageDispatcherFactoryFor(
 // This method may only be called upon startup. (c.f. `FLARE_ON_INIT`)
 void SetCatchAllMessageDispatcherFor(
     const std::string& subsys,
-    Function<std::unique_ptr<MessageDispatcher>(std::string_view scheme,
+    UniqueFunction<std::unique_ptr<MessageDispatcher>(std::string_view scheme,
                                                 std::string_view address)>
         factory);
 
@@ -62,7 +62,7 @@ void SetCatchAllMessageDispatcherFor(
 //
 // This method may only be called upon startup. (c.f. `FLARE_ON_INIT`)
 void SetDefaultMessageDispatcherFactory(
-    Function<std::unique_ptr<MessageDispatcher>(std::string_view subsys,
+    UniqueFunction<std::unique_ptr<MessageDispatcher>(std::string_view subsys,
                                                 std::string_view scheme,
                                                 std::string_view address)>
         factory);

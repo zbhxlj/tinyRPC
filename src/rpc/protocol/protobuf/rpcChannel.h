@@ -9,6 +9,7 @@
 #include "google/protobuf/service.h"
 
 #include "../../../base/internal/LazyInit.h"
+#include "MockChannel.h"
 
 DECLARE_int32(flare_rpc_channel_max_packet_size);
 
@@ -74,6 +75,10 @@ class RpcChannel : public google::protobuf::RpcChannel {
   bool Open(std::string address,
             const Options& options = internal::LazyInitConstant<Options>());
 
+  // For internal use. Do NOT call this method.
+  //
+  // Must be called before entering multi-threaded environment.
+  static void RegisterMockChannel(protobuf::detail::MockChannel* channel);
 
  protected:
   // `request` / `response` is ignored if the `method` accepts a stream of
@@ -93,6 +98,11 @@ class RpcChannel : public google::protobuf::RpcChannel {
   struct RpcCompletionDesc;
 
   FRIEND_TEST(Channel, L5);
+  void CallMethodWritingBinlog(const google::protobuf::MethodDescriptor* method,
+                              RpcClientController* controller,
+                              const google::protobuf::Message* request,
+                              google::protobuf::Message* response,
+                              google::protobuf::Closure* done);
 
   void CallMethodWithRetry(const google::protobuf::MethodDescriptor* method,
                            RpcClientController* controller,
