@@ -83,8 +83,8 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
     UnsafeTryInitializeControlBlock<T>();
     auto&& cb = UnsafeGetControlBlock<T>();
     // For the moment we don't handle duplicate registration well.
-    FLARE_CHECK(!cb->key_desc_map.contains(key));
-    FLARE_CHECK(!cb->name_key_map.contains(method->full_name()));
+    FLARE_CHECK(cb->key_desc_map.find(key) == cb->key_desc_map.end());
+    FLARE_CHECK(cb->name_key_map.find(method->full_name()) == cb->name_key_map.end());
     cb->key_desc_map[key] = CreateMethodDesc<T>(method, key);
     cb->name_key_map[method->full_name()] = key;
     version_.fetch_add(1);
@@ -95,7 +95,8 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
   const MethodDesc<T>* TryGetMethodDesc(T protocol,
                                         const MethodKey<T>& key) const {
     auto&& cb = GetCachedControlBlock<T>();
-    if (auto p = cb->key_desc_map.TryGet(key); FLARE_LIKELY(p)) {
+    if(cb->key_desc_map.find(key) != cb->key_desc_map.end()){
+      auto p = &cb->key_desc_map.at(key);
       return p;
     }
     return nullptr;
@@ -175,7 +176,7 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
     // can be initalized statically.
     thread_local std::unique_ptr<ControlBlock<T>> cache;
 
-    if (auto v = version_;
+    if (auto v = version_.load();
         FLARE_UNLIKELY(v != version)) {
       FillControlBlockCache(&version, &cache);
     }

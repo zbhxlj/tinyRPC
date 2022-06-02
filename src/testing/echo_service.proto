@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package tinyRPC.testing;
+
+option cc_generic_services = true;
+
+message EchoRequest {
+  string body = 1;
+}
+
+message EchoResponse {
+  string body = 2;
+}
+
+service EchoService {
+  rpc Echo(EchoRequest) returns (EchoResponse) {}
+  rpc EchoWithMaxOngoingRequests(EchoRequest) returns (EchoResponse) {}
+}

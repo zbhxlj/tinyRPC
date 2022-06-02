@@ -1,3 +1,4 @@
+#include <glog/logging.h>
 #define FLARE_RPC_SERVER_CONTROLLER_SUPPRESS_INCLUDE_WARNING
 
 #include "Service.h"
@@ -7,8 +8,8 @@
 #include <memory>
 #include <utility>
 
-#include "gflags/gflags.h"
 #include "google/protobuf/descriptor.h"
+#include "gflags/gflags.h"
 
 #include "../../../base/Callback.h"
 #include "../../../base/String.h"
@@ -17,7 +18,6 @@
 #include "rpcControllerServer.h"
 #include "ServiceMethodLocator.h"
 #include "../StreamProtocol.h"
-#include "../../rpc_options.pb.h"
 
 using namespace std::literals;
 
@@ -30,6 +30,10 @@ DEFINE_string(flare_rpc_server_protocol_buffers_max_ongoing_requests_per_method,
               "Echo2:5000`. If both this option and Protocol Buffers option "
               "`flare.max_ongoing_requests` are applicable, the smaller one "
               "is respected.");
+
+DEFINE_int32(max_queueing_delay_ms, 2000, "max_queueing_delay_ms");
+
+DEFINE_int32(max_ongoing_requests, 1024 * 1024, "max_ongoing_requests");
 
 namespace tinyRPC::protobuf {
 
@@ -101,17 +105,12 @@ void Service::AddService(MaybeOwning<google::protobuf::Service> impl) {
             method->output_type());
 
     // Limit on maximum delay in dispatch queue.
-    if (auto delay =
-            method->options().GetExtension(flare::max_queueing_delay_ms)) {
-      e.max_queueing_delay = 1ms * delay;
-    }
+    auto delay = FLAGS_max_queueing_delay_ms;
+    e.max_queueing_delay = 1ms * delay;
 
     // Limit on maximum concurency.
-    e.max_ongoing_requests = std::numeric_limits<std::uint32_t>::max();
-    if (method->options().HasExtension(flare::max_ongoing_requests)) {
-      e.max_ongoing_requests =
-          method->options().GetExtension(flare::max_ongoing_requests);
-    }
+    e.max_ongoing_requests = FLAGS_max_ongoing_requests;
+  
     if (auto iter = kMaxOngoingRequestsConfigs.find(name);
         iter != kMaxOngoingRequestsConfigs.end()) {
       e.max_ongoing_requests = std::min(e.max_ongoing_requests, iter->second);
