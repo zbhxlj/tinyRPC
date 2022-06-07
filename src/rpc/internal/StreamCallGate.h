@@ -29,7 +29,7 @@ namespace tinyRPC::rpc::internal {
 // name resolving will be done here. Use `XxxChannel` instead if that's what
 // you want.
 //
-// This is generally used by `XxxChannel` (via `StreamCallGatePool`).
+// This is generally used by `XxxChannel`.
 //
 // Thread-safe.
 class StreamCallGate : public StreamConnectionHandler {

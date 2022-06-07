@@ -1,14 +1,14 @@
 include(GoogleTest)
 
-add_subdirectory(plugin)
+#add_subdirectory(plugin)
 
 file(GLOB src_pb *.cpp *.h *.cc)
 list(FILTER src_pb EXCLUDE REGEX "Test.cpp$")
 
 add_library(pb STATIC ${src_pb})
 
-find_package(Protobuf REQUIRED)
-include_directories(${Protobuf_INCLUDE_DIRS})
+#find_package(Protobuf REQUIRED)
+#include_directories(${Protobuf_INCLUDE_DIRS})
 
 
 # Use custom protobuf libs

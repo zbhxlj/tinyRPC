@@ -1,5 +1,4 @@
 #define _SRC_RPC_CHANNEL_SUPPRESS_INCLUDE_WARNING
-#define _SRC_RPC_CLIENT_CONTROLLER_SUPPRESS_INCLUDE_WARNING
 
 #include "rpcChannel.h"
 
@@ -65,30 +64,6 @@ protobuf::detail::MockChannel* mock_channel;
 
 bool IsMockAddress(const std::string& address) {
   return StartsWith(address, "mock://");
-}
-
-
-
-// Handle the difference between URI scheme difference between our old framework
-// and Flare.
-//
-// This method is only used by `RpcChannel`, so we can assume Protocol Buffers
-// protocol here.
-void NormalizeUriScheme(std::string* uri) {
-  static const std::unordered_map<std::string_view, std::string_view>
-      kSchemeMap = {{"http", "http+pb"}, {"qzone", "qzone-pb"}};
-
-  auto pos = uri->find_first_of(':');
-  if (pos == std::string::npos) {
-    return;  // There's likely an error in URI, let's the caller handle it.
-  }
-  auto scheme = std::string_view(*uri).substr(0, pos);
-  if (auto iter = kSchemeMap.find(scheme); iter == kSchemeMap.end()) {
-    return;  // The scheme is in normalized form then.
-  } else {
-    *uri = std::string(iter->second) + uri->substr(pos);
-    // Should we log a warning here?
-  }
 }
 
 // Returns: scheme, address.
@@ -171,7 +146,6 @@ RpcChannel::RpcChannel(std::string address, const Options& options)
 bool RpcChannel::Open(std::string address, const Options& options) {
   options_ = options;
   address_ = address;
-  NormalizeUriScheme(&address);
 
   if (FLARE_UNLIKELY(IsMockAddress(address))) {
     FLARE_CHECK(mock_channel,
@@ -203,7 +177,6 @@ bool RpcChannel::Open(std::string address, const Options& options) {
     FLARE_LOG_WARNING("URI [{}] is not resolvable.", address);
     return false;
   }
-  // TODO:
   impl_->opened = true;
 
   return true;
@@ -228,10 +201,10 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
                                                   response, done);
   }
 
-  CallMethodWritingBinlog(method, ctlr, request, response, done);
+  CallMethodWritingImpl(method, ctlr, request, response, done);
 }
 
-void RpcChannel::CallMethodWritingBinlog(
+void RpcChannel::CallMethodWritingImpl(
     const google::protobuf::MethodDescriptor* method,
     RpcClientController* controller, const google::protobuf::Message* request,
     google::protobuf::Message* response, google::protobuf::Closure* done) {

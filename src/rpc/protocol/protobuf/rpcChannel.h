@@ -98,7 +98,7 @@ class RpcChannel : public google::protobuf::RpcChannel {
   struct RpcCompletionDesc;
 
   FRIEND_TEST(Channel, L5);
-  void CallMethodWritingBinlog(const google::protobuf::MethodDescriptor* method,
+  void CallMethodWritingImpl(const google::protobuf::MethodDescriptor* method,
                               RpcClientController* controller,
                               const google::protobuf::Message* request,
                               google::protobuf::Message* response,

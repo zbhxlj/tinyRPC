@@ -43,8 +43,7 @@ inline constexpr struct Standard {
 
 }  // namespace protocol_ids
 
-// This class maps various IDs (or keys) used in a given protocol (FlareStd,
-// QZone, ...) to its detailed information.
+// This class maps various keys used in a given protocol (FlareStd ) to its detailed information.
 //
 // Unless otherwise stated, methods of this class are thread-safe.
 //
@@ -160,7 +159,7 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
   template <class T>
   [[gnu::noinline, gnu::cold]] void FillControlBlockCache(
       std::uint64_t* version, std::unique_ptr<ControlBlock<T>>* cache) const {
-    auto v = version_.load(std::memory_order_relaxed);
+    auto v = version_.load();
     FLARE_CHECK_GT(v, *version);
     std::shared_lock lk(lock_);
     if (auto ptr = const_cast<ServiceMethodLocator*>(this)

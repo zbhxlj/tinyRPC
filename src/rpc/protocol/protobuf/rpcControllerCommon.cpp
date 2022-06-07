@@ -15,21 +15,6 @@ void RpcControllerCommon::Reset() {
   response_attachment_.clear();
 }
 
-void RpcControllerCommon::StartCancel() {
-  // Cancellation is not implemented yet.
-  FLARE_CHECK(!"Not supported.");
-}
-
-bool RpcControllerCommon::IsCanceled() const {
-  // Cancellation is not implemented yet.
-  FLARE_CHECK(!"Not supported.");
-}
-
-void RpcControllerCommon::NotifyOnCancel(google::protobuf::Closure* callback) {
-  // Cancellation is not implemented yet.
-  FLARE_CHECK(!"Not supported.");
-}
-
 RpcControllerCommon::~RpcControllerCommon() {}
 
 }  // namespace tinyRPC::protobuf

@@ -147,7 +147,6 @@ bool StdProtocol::TryParse(std::unique_ptr<Message>* message,
     return false;
   }
 
-  // Set only if we really need to deserialize the message.
   MaybeOwning<google::protobuf::Message> unpack_to;
 
   if (server_side_) {
@@ -162,8 +161,6 @@ bool StdProtocol::TryParse(std::unique_ptr<Message>* message,
       *message = std::make_unique<EarlyErrorMessage>(
           meta->correlation_id(), rpc::STATUS_METHOD_NOT_FOUND,
           fmt::format("Method [{}] is not implemented.", method));
-      // TODO(luobogao): We could change `TryParse`'s signature and returns
-      // `kNotFound`, and let the framework itself to create the error response.
       return true;
     }
 
@@ -171,9 +168,8 @@ bool StdProtocol::TryParse(std::unique_ptr<Message>* message,
         desc->request_prototype->New());
   } else {
     FLARE_CHECK(meta->has_response_meta());  // Checked before.
-    if (auto ctx = static_cast<ProactiveCallContext*>(controller)) {
-      unpack_to = ctx->GetOrCreateResponse();
-    }
+    auto ctx = static_cast<ProactiveCallContext*>(controller);
+    unpack_to = ctx->GetOrCreateResponse();
   }
 
   if (FLARE_LIKELY(!(meta->flags() & rpc::MESSAGE_FLAGS_NO_PAYLOAD))) {
@@ -210,7 +206,6 @@ void StdProtocol::WriteMessage(const Message& message,
 
   Header hdr = {
       .magic = kHeaderMagic,
-      // TODO(luobogao): Serialize first and use `GetCachedSize()` instead.
       .meta_size = static_cast<std::uint32_t>(meta.ByteSizeLong()),
       .msg_size = 0 /* Filled later. */,
       .att_size = 0 /* Filled later. */};

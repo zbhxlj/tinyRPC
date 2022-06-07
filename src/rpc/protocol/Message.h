@@ -23,8 +23,6 @@ class Message {
   //
   // Note that 0 is not usable here as we use 0 as a guard value.
   //
-  // FIXME: "Multiplex[a]ble" or "Multiplex[i]ble"? The former seems a bit more
-  // common.
   static constexpr auto kNonmultiplexableCorrelationId = 1;
 
   // Correlation ID uniquely identifies a call.

@@ -52,14 +52,6 @@ class StreamProtocol {
 
   struct Characteristics {
     std::string name;
-    // TODO: useful?
-    // If set, this protocol does not support multiplexing, and a dedicated
-    // connection is required for each request (but the connection can be
-    // reused.).
-    //
-    // In this case, all message produced / consumed by this protocol should
-    // have a correlation_id of `kNonmultiplexableCorrelationId`.
-    bool not_multiplexable = false;
   };
 
   // Arguably this should be a static method but it's impossible to mark a
@@ -115,7 +107,6 @@ class StreamProtocol {
                             Controller* controller) = 0;
 };
 
-// TODO: what does this mean?
 FLARE_DECLARE_CLASS_DEPENDENCY_REGISTRY(client_side_stream_protocol_registry,
                                         StreamProtocol);
 FLARE_DECLARE_CLASS_DEPENDENCY_REGISTRY(server_side_stream_protocol_registry,

@@ -20,13 +20,17 @@ class StdProtocol : public StreamProtocol {
 
   const Characteristics& GetCharacteristics() const override;
 
+  // Get ErrorMessageFactory.
   const MessageFactory* GetMessageFactory() const override;
+  // Get ClientCallContext.
   const ControllerFactory* GetControllerFactory() const override;
 
   // Examine `buffer` and extract message.
+  // Parse until meta, then leave remains to TryParse in another fiber.
   MessageCutStatus TryCutMessage(std::string& buffer,
                                  std::unique_ptr<Message>* message) override;
 
+  // Continue to parse the whole message.
   bool TryParse(std::unique_ptr<Message>* message,
                 Controller* controller) override;
 

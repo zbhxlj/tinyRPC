@@ -44,7 +44,7 @@ std::size_t WriteTo(const PBMessage& msg,
       // in optimized build. For non-optimized build, it's already checked by
       // default (by Protocol Buffers' generated code).
       FLARE_CHECK(pb_msg->SerializeToString(&builder));
-      return pb_msg->GetCachedSize();
+      return pb_msg->ByteSize();
     } else {
       return 0;
     }

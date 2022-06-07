@@ -13,9 +13,6 @@ namespace tinyRPC::protobuf {
 // This call context is used when we're proactively making calls. That is, it's
 // used at client side.
 struct ProactiveCallContext : Controller {
-  // Set if we're holding a response prototype (as opposed of a response
-  // buffer.).
-  bool expecting_stream;
   google::protobuf::Message* response_ptr = nullptr;
   const google::protobuf::Message* response_prototype = nullptr;
 

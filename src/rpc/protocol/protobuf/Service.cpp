@@ -21,16 +21,6 @@
 
 using namespace std::literals;
 
-DEFINE_string(flare_rpc_server_protocol_buffers_max_ongoing_requests_per_method,
-              "",
-              "If set, a list of method_full_name:limit, separated by comma, "
-              "should be provided. This flag controls allowed maximum "
-              "concurrent requests, in a per-method fashion. e.g.: "
-              "`flare.example.EchoService.Echo:10000,flare.example.EchoService."
-              "Echo2:5000`. If both this option and Protocol Buffers option "
-              "`flare.max_ongoing_requests` are applicable, the smaller one "
-              "is respected.");
-
 DEFINE_int32(max_queueing_delay_ms, 2000, "max_queueing_delay_ms");
 
 DEFINE_int32(max_ongoing_requests, 1024 * 1024, "max_ongoing_requests");
@@ -50,28 +40,6 @@ ProtoMessage CreateErrorResponse(std::uint64_t correlation_id,
   return ProtoMessage(std::move(meta), nullptr);
 }
 
-std::unordered_map<std::string, std::uint32_t> ParseMaxOngoingRequestFlag() {
-  std::unordered_map<std::string, std::uint32_t> result;
-
-  auto splitted = Split(
-      FLAGS_flare_rpc_server_protocol_buffers_max_ongoing_requests_per_method,
-      ",");
-  for (auto&& e : splitted) {
-    auto method_limit = Split(e, ":");
-    FLARE_CHECK(method_limit.size() == 2,
-                "Invalid per-method max-ongoing-requests config: [{}]", e);
-    auto name = std::string(method_limit[0]);
-    auto method_desc =
-        google::protobuf::DescriptorPool::generated_pool()->FindMethodByName(
-            name);
-    FLARE_CHECK(method_desc, "Unrecognized method [{}].", method_limit[0]);
-    auto limit = TryParse<std::uint32_t>(method_limit[1]);
-    FLARE_CHECK(limit, "Invalid max-ongoing-request limit [{}].",
-                method_limit[1]);
-    result[name] = *limit;
-  }
-  return result;
-}
 
 }  // namespace
 
@@ -82,8 +50,6 @@ Service::~Service() {
 }
 
 void Service::AddService(MaybeOwning<google::protobuf::Service> impl) {
-  static const auto kMaxOngoingRequestsConfigs = ParseMaxOngoingRequestFlag();
-
   auto&& service_desc = impl->GetDescriptor();
 
   for (int i = 0; i != service_desc->method_count(); ++i) {
@@ -111,10 +77,6 @@ void Service::AddService(MaybeOwning<google::protobuf::Service> impl) {
     // Limit on maximum concurency.
     e.max_ongoing_requests = FLAGS_max_ongoing_requests;
   
-    if (auto iter = kMaxOngoingRequestsConfigs.find(name);
-        iter != kMaxOngoingRequestsConfigs.end()) {
-      e.max_ongoing_requests = std::min(e.max_ongoing_requests, iter->second);
-    }
     if (e.max_ongoing_requests != std::numeric_limits<std::uint32_t>::max()) {
       e.ongoing_requests = std::make_unique<AlignedInt>();
     }
@@ -304,9 +266,9 @@ Deferred Service::AcquireProcessingQuotaOrReject(const ProtoMessage& msg,
   auto&& ongoing_req_ptr = method.ongoing_requests.get();
   if (FLARE_UNLIKELY(
           ongoing_req_ptr &&
-          ongoing_req_ptr->value.fetch_add(1, std::memory_order_relaxed) + 1 >
+          ongoing_req_ptr->value.fetch_add(1) + 1 >
               method.max_ongoing_requests)) {
-    ongoing_req_ptr->value.fetch_sub(1, std::memory_order_relaxed);
+    ongoing_req_ptr->value.fetch_sub(1);
     FLARE_LOG_WARNING(
         "Rejecting call to [{}] from [{}]: Too many concurrent requests.",
         msg.meta->request_meta().method_name(), ctx.remote_peer.ToString());
@@ -317,7 +279,7 @@ Deferred Service::AcquireProcessingQuotaOrReject(const ProtoMessage& msg,
     // Restore ongoing request counter.
     if (ongoing_req_ptr) {
       FLARE_CHECK_GE(
-          ongoing_req_ptr->value.fetch_sub(1, std::memory_order_relaxed), 0);
+          ongoing_req_ptr->value.fetch_sub(1), 0);
     }
   });
 }
