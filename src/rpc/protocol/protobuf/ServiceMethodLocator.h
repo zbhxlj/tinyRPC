@@ -22,6 +22,7 @@
 #include "../../../base/Singleton.h"
 #include "../../../base/TypeIndex.h"
 #include "../../../base/Singleton.h"
+#include "../../../init/on_init.h"
 
 namespace tinyRPC::protobuf {
 
@@ -235,7 +236,7 @@ class ServiceMethodLocator : public tinyRPC::Singleton<ServiceMethodLocator>{
 
 #define FLARE_RPC_PROTOCOL_PROTOBUF_REGISTER_METHOD_PROVIDER(init, fini) \
   FLARE_ON_INIT(0, [] {                                                  \
-    ::flare::protobuf::ServiceMethodLocator::Instance()                  \
+    ::tinyRPC::protobuf::ServiceMethodLocator::Instance()                  \
         ->RegisterMethodProvider(init, fini);                            \
   })
 

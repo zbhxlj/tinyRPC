@@ -148,13 +148,13 @@ TINYRPC_DEFINE_ENUM_BITMASK_OPS(StreamProtocol::MessageCutStatus);
 #define FLARE_RPC_REGISTER_CLIENT_SIDE_STREAM_PROTOCOL_ARG( \
     Name, Implementation, ...)                              \
   FLARE_REGISTER_CLASS_DEPENDENCY_FACTORY(                  \
-      flare::client_side_stream_protocol_registry, Name,    \
+      tinyRPC::client_side_stream_protocol_registry, Name,    \
       [] { return std::make_unique<Implementation>(__VA_ARGS__); })
 
 #define FLARE_RPC_REGISTER_SERVER_SIDE_STREAM_PROTOCOL_ARG( \
     Name, Implementation, ...)                              \
   FLARE_REGISTER_CLASS_DEPENDENCY_FACTORY(                  \
-      flare::server_side_stream_protocol_registry, Name,    \
+      tinyRPC::server_side_stream_protocol_registry, Name,    \
       [] { return std::make_unique<Implementation>(__VA_ARGS__); })
 
 #endif  
