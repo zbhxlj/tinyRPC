@@ -406,7 +406,6 @@ Server::CreateNormalConnectionHandler(std::uint64_t id, Endpoint peer) {
 void Server::StartBackgroundJob(Function<void()> cb) {
   outstanding_jobs_.fetch_add(1);
 
-  // TODO(luobogao): We might want to a work queue to accomplish this.
   flare::fiber::internal::StartFiberDetached([this, cb = std::move(cb)] {
     cb();
     FLARE_CHECK_GE(outstanding_jobs_.fetch_sub(1),

@@ -4,9 +4,20 @@ project(tinyRPC)
 
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Werror -Wunused -Wno-sign-compare -g -O2 -Wno-comment  -Wno-nonnull-compare) 
+add_compile_options(-Wall -Werror -Wunused -Wno-sign-compare -g -O2 -Wno-comment  -Wno-nonnull-compare
+        -Wno-deprecated-declarations) 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+
+# set(Protobuf_SRC_ROOT_FOLDER ${PROJECT_SOURCE_DIR}/include/google/protobuf)
+# set(Protobuf_USE_STATIC_LIBS ON)
+# set(Protobuf_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include)
+# set(Protobuf_LIBRARIES ${PROJECT_SOURCE_DIR}/lib/protobuf-3.4.1/libprotobuf.a)
+# set(Protobuf_PROTOC_EXECUTABLE ${PROJECT_SOURCE_DIR}/scripts/protoc)
+
+# include_directories(${Protobuf_INCLUDE_DIRS})
+
+FIND_PACKAGE(protobuf REQUIRED)
 
 set(libcommon 
         ${PROJECT_SOURCE_DIR}/lib/fmt/libfmt.a

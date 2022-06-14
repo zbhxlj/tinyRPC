@@ -63,6 +63,12 @@ class RpcControllerCommon : public google::protobuf::RpcController {
   // Reset the controller.
   void Reset() override;
 
+
+  // Cancellation is not implemented yet.
+  void StartCancel() override;
+  bool IsCanceled() const override;
+  void NotifyOnCancel(google::protobuf::Closure* callback) override;
+
   // Get error code of this RPC, or `STATUS_SUCCESS` if no failure occurred.
   virtual int ErrorCode() const = 0;
 
