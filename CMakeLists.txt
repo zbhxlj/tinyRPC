@@ -31,7 +31,6 @@ set(libcommon
 
 enable_testing()
 
-add_subdirectory(unittest)
 add_subdirectory(src/base)
 add_subdirectory(src/fiber)
 add_subdirectory(src/io)

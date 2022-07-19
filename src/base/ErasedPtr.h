@@ -7,7 +7,7 @@
 // RAII wrapper for holding type erased pointers.
 
 namespace tinyRPC{
-    // RAII wrapper for holding type erased pointers. Type-safety is your own
+// RAII wrapper for holding type erased pointers. Type-safety is your own
 // responsibility.
 class ErasedPtr final {
  public:
